@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('pic', 200)->nullable();
             $table->double('harga_jual')->nullable();
             $table->double('harga_beli')->nullable();
+            $table->integer('stok')->nullable();
         });
     }
 
@@ -31,8 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('m_barang', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('m_barang');
     }
 };
