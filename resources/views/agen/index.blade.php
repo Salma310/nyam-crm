@@ -13,7 +13,7 @@
                 font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             }
 
-            .content {
+            .content {   
                 padding: 15px;
             }
 
