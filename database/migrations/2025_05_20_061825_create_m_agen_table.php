@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('kota')->nullable();
             $table->string('provinsi')->nullable();
             $table->string('no_telf', 50)->nullable();
-            $table->date('tgl_transaksi')->nullable();
             $table->timestamps();
         });
     }
