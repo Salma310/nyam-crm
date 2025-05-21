@@ -1,4 +1,4 @@
-<aside class="main-sidebar sidebar-dark-primary elevation-4">
+<aside class="main-sidebar elevation-4">
     <a href="#" class="brand-link text-center">
         <img src="{{ asset('logo.png') }}" alt="Nyam Logo" style="width: 40px;">
         <span class="brand-text font-weight-bold">Nyam!</span>
@@ -14,19 +14,18 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/transaksi') }}" class="nav-link {{ request()->Is('transaksi') ? 'active' : '' }}">
+                    <a href="{{ url('/transaksi') }}" class="nav-link {{ request()->is('transaksi*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-chart-bar"></i>
                         <p>Transaksi</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/barang') }}" class="nav-link {{ request()->Is('barang*') ? 'active' : '' }}">
+                    <a href="{{ url('/barang') }}" class="nav-link {{ request()->is('barang*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-box"></i>
                         <p>Stok Produk</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    {{-- <a href="{{ url('/agen') }}" class="nav-link {{  $activeMenu == 'agen' ? 'active' : '' }}"> --}}
                     <a href="{{ url('/agen') }}" class="nav-link {{ request()->is('agen*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-users"></i>
                         <p>Agen</p>
