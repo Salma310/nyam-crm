@@ -20,7 +20,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('barang') }}" class="nav-link {{ request()->routeIs('barang') ? 'active' : '' }}">
+                    <a href="{{ url('/barang') }}" class="nav-link {{ request()->Is('barang*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-box"></i>
                         <p>Stok Produk</p>
                     </a>
