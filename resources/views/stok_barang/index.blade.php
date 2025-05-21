@@ -167,7 +167,7 @@
                 color: #d32f2f;
             }
 
-            .filter_jenis_event {
+            .filter_jenis_barang {
                 width: 250px;
                 font-size: 14px;
                 border-radius: 8px;
@@ -179,7 +179,7 @@
         <div class="content flex-grow-1">
             <div class="header">
                 <div class="group-btn">
-                    <button class="btn btn-primary" onclick="modalAction('{{ url('event/create_ajax') }}')">
+                    <button class="btn btn-primary" onclick="modalAction('{{ url('barang/create_ajax') }}')">
                         <i class="fas fa-plus"></i>Add Produk</button>
                 </div>
                 <div class="search-box">
@@ -189,16 +189,7 @@
                 </div>
             </div>
             <div class="table-container table-responsive mt-4">
-                <div class="d-flex flex-row justify-content-start">
-                    <label class="mr-3 mt-1">Filter: </label>
-                    <select name="jenis_event_id" id="jenis_event_id" class="form-control form-control mb-2 d-inline filter_jenis_event">
-                        <option value="">- Semua -</option>
-                        {{-- @foreach ($jenisEvent as $l)
-                            <option value="{{ $l->jenis_event_id }}">{{ $l->jenis_event_name }}</option>
-                        @endforeach --}}
-                    </select>
-                </div>
-                <table class="table" id="eventTable">
+                <table class="table" id="barangTable">
                     <thead>
                         <tr>
                             <th>
@@ -227,31 +218,31 @@
                 </table>
             </div>
         </div>
-        <div class="modal fade show" id="eventModal" tabindex="-1" role="dialog" data-backdrop="static"
+        <div class="modal fade show" id="barangModal" tabindex="-1" role="dialog" data-backdrop="static"
             aria-labelledby="roleModalLabel" aria-hidden="true"></div>
 
         @push('js')
             <script>
-                var dataEvent;
+                var dataBarang;
 
                 function modalAction(url = '') {
-                    $('#eventModal').load(url, function() {
-                        $('#eventModal').modal('show');
+                    $('#barangModal').load(url, function() {
+                        $('#barangModal').modal('show');
                     });
                 }
 
                 $(document).ready(function() {
-                    dataEvent = $('#eventTable').DataTable({
+                    dataBarang = $('#barangTable').DataTable({
                         processing: true,
                         serverSide: true,
                         searching: false,
                         lengthChange: false,
                         ajax: {
-                            "url": "{{ url('event/list') }}",
+                            "url": "{{ url('barang/list') }}",
                             "datatypes": "json",
                             "type": "POST",
-                            "data" : function ( d ) {
-                                d.jenis_event_id = $('#jenis_event_id').val();
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             }
                         },
                         columns: [{
@@ -261,53 +252,35 @@
                                 searchable: false
                             },
                             {
-                                data: "event_name",
-                                className: "",
+                                data: "kode_barang",
+                                name: "kode_barang",
                                 orderable: true,
                                 searchable: true,
                             },
                             {
-                                data: 'participant_name',
-                                name: 'participant_name',
+                                data: 'nama_barang',
+                                name: 'nama_barang',
                                 orderable: false,
                                 searchable: true
-                            }, {
-                                data: "end_date",
-                                className: "",
-                                orderable: true,
-                                searchable: true,
-                                render: function(data) {
-                                    if (data) {
-                                        var date = new Date(data);
-                                        var day = ("0" + date.getDate()).slice(-2);
-                                        var month = ("0" + (date.getMonth() + 1)).slice(-2);
-                                        var year = date.getFullYear();
-                                        return day + '-' + month + '-' + year;
-                                    }
-                                    return data;
-                                }
-                            },
+                            }, 
                             {
-                                data: "status",
-                                className: "",
+                                data: 'stok',
+                                name: 'stok',
                                 orderable: false,
-                                searchable: false,
-                                render: function(data) {
-                                    if (data == 'completed') {
-                                        return '<span class="badge badge-success">Selesai</span>';
-                                    } else if(data == 'progress') {
-                                        return '<span class="badge badge-warning">Proses</span>';
-                                    } else {
-                                        return '<span class="badge badge-danger">Belum Dimulai</span>';
-                                    }
-                                }
-                            },
+                                searchable: true
+                            }, 
                             {
-                                data: "point",
-                                className: "",
-                                orderable: true,
-                                searchable: false
-                            },
+                                data: 'harga_beli',
+                                name: 'harga_beli',
+                                orderable: false,
+                                searchable: true
+                            }, 
+                              {
+                                data: 'harga_jual',
+                                name: 'harga_jual',
+                                orderable: false,
+                                searchable: true
+                            }, 
                             {
                                 data: "aksi",
                                 name: "aksi",
@@ -318,15 +291,17 @@
                     });
                 });
 
-                $('#jenis_event_id').on('change', function() {
-                    dataEvent.ajax.reload();
+                loadData();
+
+                $('#searchInput').on('keyup', function () {
+                    dataBarang.search(this.value).draw();
                 });
 
                 function searchTable() {
                     var input, filter, table, tr, td, i, j, txtValue;
                     input = document.getElementById("searchInput");
                     filter = input.value.toUpperCase();
-                    table = document.getElementById("eventTable");
+                    table = document.getElementById("barangTable");
                     tr = table.getElementsByTagName("tr");
 
                     for (i = 1; i < tr.length; i++) {
