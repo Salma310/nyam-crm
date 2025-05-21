@@ -20,6 +20,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ route('barang') }}" class="nav-link {{ request()->routeIs('barang') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-box"></i>
+                        <p>Stok Produk</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ route('agen') }}" class="nav-link {{ request()->routeIs('agen') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-users"></i>
                         <p>Agen</p>

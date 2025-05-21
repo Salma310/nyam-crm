@@ -22,6 +22,10 @@ Route::get('/transaksi', function () {
     return view('transaksi.index');
 })->name('transaksi');
 
+Route::get('/barang', function () {
+    return view('stok_barang.index');
+})->name('barang');
+
 Route::get('/agen', function () {
     return view('agen.index');
 })->name('agen');
