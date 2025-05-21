@@ -20,12 +20,11 @@ class Agen extends Model
         'kecamatan',
         'kota',
         'provinsi',
-        'status',
     ];
 
     public function transaksi()
     {
-        return $this->hasMany(Transaksi::class, 'kode_transaksi', 'agen_id');
+        return $this->hasMany(Transaksi::class, 'transaksi_id', 'agen_id');
     }
 
 }

@@ -26,7 +26,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('agen') }}" class="nav-link {{ request()->routeIs('agen') ? 'active' : '' }}">
+                    {{-- <a href="{{ url('/agen') }}" class="nav-link {{  $activeMenu == 'agen' ? 'active' : '' }}"> --}}
+                    <a href="{{ url('/agen') }}" class="nav-link {{ request()->is('agen*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-users"></i>
                         <p>Agen</p>
                     </a>
