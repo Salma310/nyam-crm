@@ -1,6 +1,6 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a href="#" class="brand-link text-center">
-        {{-- <img src="{{ asset('images/nyam-logo.png') }}" alt="Nyam Logo" style="width: 40px;"> --}}
+        <img src="{{ asset('logo.png') }}" alt="Nyam Logo" style="width: 40px;">
         <span class="brand-text font-weight-bold">Nyam!</span>
     </a>
 
@@ -14,7 +14,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('transaksi') }}" class="nav-link {{ request()->routeIs('transaksi') ? 'active' : '' }}">
+                    <a href="{{ url('/transaksi') }}" class="nav-link {{ request()->Is('transaksi') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-chart-bar"></i>
                         <p>Transaksi</p>
                     </a>

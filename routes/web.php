@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AgenController;
 use App\Http\Controllers\BarangController;
+use App\Http\Controllers\TransaksiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,13 +52,29 @@ Route::group(['prefix' => 'barang'], function () {
         Route::get('/export_pdf', [BarangController::class, 'export_pdf']);
     });
 
+    Route::group(['prefix' => 'transaksi'], function () {
+        Route::get('/', [TransaksiController::class, 'index']);
+        Route::post('/list', [TransaksiController::class, 'list']);
+        Route::get('/create', [TransaksiController::class, 'create']);
+        Route::post('/add', [TransaksiController::class, 'store']);
+        Route::get('/{id}/edit', [TransaksiController::class, 'edit']);
+        Route::put('/{id}/update', [TransaksiController::class, 'update']);
+        Route::get('/{id}/show', [TransaksiController::class, 'show']);
+        Route::get('/{id}/delete', [TransaksiController::class, 'confirm']);
+        Route::delete('/{id}/delete', [TransaksiController::class, 'delete']);
+        Route::get('/{id}', [TransaksiController::class, 'show']);
+        Route::delete('/{id}', [TransaksiController::class, 'destroy']);
+        // Route::get('/{id}/export_pdf', [TransaksiController::class, 'export_pdf']);
+        Route::get('/{id}/print', [TransaksiController::class, 'printInvoice']); // PDF invoice
+
+});     
 Route::get('/', function () {
     return view('dashboard');
 })->name('dashboard');
 
-Route::get('/transaksi', function () {
-    return view('transaksi.index');
-})->name('transaksi');
+// Route::get('/transaksi', function () {
+//     return view('transaksi.index');
+// })->name('transaksi');
 
 Route::get('/barang', function () {
     return view('stok_barang.index');
