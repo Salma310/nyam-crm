@@ -189,15 +189,15 @@
                 </div>
             </div>
             <div class="table-container table-responsive mt-4">
-                <div class="d-flex flex-row justify-content-start">
+                {{-- <div class="d-flex flex-row justify-content-start">
                     <label class="mr-3 mt-1">Filter: </label>
-                    <select name="kota" id="kota" class="form-control form-control mb-2 d-inline filter_jenis_event">
+                    <select id="kota" name="kota" class="form-control form-control mb-2 d-inline filter_jenis_event">
                         <option value="">- Semua -</option>
                         @foreach ($daftarKota as $kota)
-                            <option value="{{ $kota }}">{{ $kota }}</option>
+                            <option value="{{$kota}}">{{ $kota }}</option>
                         @endforeach
                     </select>
-                </div>
+                </div> --}}
                 <table class="table" id="agenTable">
                     <thead>
                         <tr>
@@ -227,16 +227,18 @@
                 </table>
             </div>
         </div>
-        <div class="modal fade show" id="agenModal" tabindex="-1" role="dialog" data-backdrop="static"
-            aria-labelledby="roleModalLabel" aria-hidden="true"></div>
+        {{-- <div class="modal fade show" id="myModal" tabindex="-1" role="dialog" data-backdrop="static"
+            aria-labelledby="roleModalLabel" aria-hidden="true"></div> --}}
+        <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div>
+
 
         @push('js')
             <script>
                 var dataAgen;
 
                 function modalAction(url = '') {
-                    $('#agenModal').load(url, function() {
-                        $('#agenModal').modal('show');
+                    $('#myModal').load(url, function() {
+                        $('#myModal').modal('show');
                     });
                 }
 
@@ -250,16 +252,17 @@
                             "url": "{{ url('agen/list') }}",
                             "datatypes": "json",
                             "type": "POST",
+                            data: function (d) {
+                                d.kota = $('#kota').val(); 
+                                console.log("Kota terpilih: ", d.kota);
+                            },
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            }
-                            // "data" : {
-                            //     kota: kota
-                            // }
+                            }                           
                         },
                         columns: [{
                                 data: "DT_RowIndex",
-                                name: "DT_RowIndex",
+                                className: "text-left",
                                 orderable: false,
                                 searchable: false
                             },
@@ -308,11 +311,18 @@
                 $('#searchInput').on('keyup', function () {
                     dataAgen.search(this.value).draw();
                 });
-                
-                $('#kota').change(function () {
-                    let selectedKota = $(this).val();
-                    loadData(selectedKota);
-                });
+
+                // $('#kota').change(function () {
+                //     dataAgen.ajax.reload(); 
+                // });
+                function loadData(kota = '') {
+                    dataAgen.ajax.url("{{ url('agen/list') }}?kota=" + kota).load();
+                }
+
+                // $('#kota').change(function () {
+                //     let selectedKota = $(this).val();
+                //     loadData(selectedKota);
+                // });
 
             
                 function searchTable() {

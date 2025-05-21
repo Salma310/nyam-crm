@@ -12,7 +12,6 @@ class Agen extends Model
     protected $table = 'm_agen';
     protected $primaryKey = 'agen_id';
     protected $fillable = [
-        'agen_id',
         'nama',
         'email',
         'no_telf',

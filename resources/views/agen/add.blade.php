@@ -44,260 +44,131 @@
         color: #dc3545;
     }
 </style>
-<form action="{{ url('/event/ajax') }}" method="POST" id="form-tambah">
+<form action="{{ url('agen/add') }}" method="POST" id="form-tambah">
     @csrf
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style="border-radius:15px;">
-            <div class="modal-header bg-primary">
-                <h5 class="modal-title" id="exampleModalLabel">Tambah Event</h5>
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background-color: #007bff">
+                <h5 class="modal-title" id="exampleModalLabel">Tambah Data Agen</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="overflow-y: auto; max-height:600px; scrollbar-width: thin;">
-                <!-- Nama Event -->
+            <div class="modal-body">
                 <div class="form-group">
-                    <label>Nama Event</label>
-                    <input type="text" name="event_name" id="event_name" class="form-control"
-                        placeholder="Isi nama event" required>
+                    <label>Nama</label>
+                    <input type="text" name="nama" id="nama" class="form-control" required>
+                    <small id="error-nama" class="error-text form-text text-danger"></small>
                 </div>
 
-                <!-- Kode Event -->
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label>Kode Event</label>
-                        <input type="text" name="event_code" id="event_code" class="form-control"
-                            placeholder="Isi kode event" required>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label>Point</label>
-                        <input type="number" name="point" id="point" class="form-control" placeholder="Isi point" required>
-                    </div>
-                </div>
-
-                <!-- Jenis Event -->
                 <div class="form-group">
-                    <label>Jenis Event</label>
-                    <select name="jenis_event_id" id="jenis_event_id" class="form-control rounded" required>
-                        <option value="">- Pilih Jenis Event -</option>
-                        @foreach ($jenisEvent as $item)
-                            @if($item->jenis_event_id != 3)
-                            <option value="{{ $item->jenis_event_id }}">{{ $item->jenis_event_name }}</option>
-                            @endif
-                        @endforeach
-                    </select>
+                    <label>Email</label>
+                    <input type="email" name="email" id="email" class="form-control" required>
+                    <small id="error-email" class="error-text form-text text-danger"></small>
                 </div>
 
-                <!-- Tanggal Mulai dan Tanggal Selesai -->
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label>Tanggal Mulai</label>
-                        <input type="date" name="start_date" id="start_date" class="form-control" required>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label>Tanggal Selesai</label>
-                        <input type="date" name="end_date" id="end_date" class="form-control" required>
-                    </div>
-                </div>
-
-                <!-- Deskripsi Event -->
                 <div class="form-group">
-                    <label>Deskripsi Event</label>
-                    <textarea name="event_description" id="event_description" class="form-control" placeholder="Deskripsi event"
-                        rows="3"></textarea>
+                    <label>No Hp</label>
+                    <input type="number" name="no_telf" id="no_telf" class="form-control" required>
+                    <small id="error-no_telf" class="error-text form-text text-danger"></small>
                 </div>
 
-                <!-- Jabatan dan Partisipan -->
-                <div id="dynamic-fields">
-                    <div class="item-row">
-                        <div class="form-row">
-                            <div class="form-group col-md-5">
-                                <label>Jabatan</label>
-                                <select name="participant[0][jabatan_id]]" class="form-control barang-select" required>
-                                    <option value="">Pilih Jabatan</option>
-                                    @foreach($jabatan as $j)
-                                        <option value="{{ $j->jabatan_id }}">
-                                            {{ $j->jabatan_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group col-md-5">
-                                <label>Partisipan</label>
-                                <select name="participant[0][user_id]]" class="form-control barang-select" required>
-                                    <option value="">Pilih Dosen</option>
-                                    @foreach($user as $dosen)
-                                        <option value="{{ $dosen->user_id }}">
-                                            {{ $dosen->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group col-md-1 d-flex align-items-center justify-content-center mt-4">
-                                <label>&nbsp;</label>
-                                <button type="button" class="btn btn-danger btn-remove-item">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                            <div class="form-group col-md-1 d-flex align-items-center justify-content-center mt-4">
-                                <button type="button" class="btn btn-primary btn-sm" id="btn-add-item">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
+                <div class="form-group">
+                    <label>Alamat</label>
+                    <input type="text" name="alamat" id="alamat" class="form-control" required>
+                    <small id="error-alamat" class="error-text form-text text-danger"></small>
+                </div>
 
-                    </div>
+                <div class="form-group">
+                    <label>Provinsi</label>
+                    <input type="text" name="provinsi" id="provinsi" class="form-control" required>
+                    <small id="error-provinsi" class="error-text form-text text-danger"></small>
+                </div>
+
+                <div class="form-group">
+                    <label>Kota</label>
+                    <input type="text" name="kota" id="kota" class="form-control" required>
+                    <small id="error-kota" class="error-text form-text text-danger"></small>
+                </div>
+
+                <div class="form-group">
+                    <label>Kecamatan</label>
+                    <input type="text" name="kecamatan" id="kecamatan" class="form-control" required>
+                    <small id="error-kecamatan" class="error-text form-text text-danger"></small>
                 </div>
             </div>
 
             <div class="modal-footer">
                 <button type="button" data-dismiss="modal" class="btn btn-warning">Batal</button>
-                <button type="submit" class="btn btn-primary">Tambah</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
             </div>
         </div>
     </div>
 </form>
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <script>
-    $(document).ready(function() {
-        // Function to add a new field dynamically
-        function addNewField() {
-            const newField = $('.item-row:first').clone();
-
-            // Reset values of the new field
-            newField.find('select').val('');
-            newField.find('input').val('');
-
-            // Update the name attributes of the new field
-            newField.find('[name]').each(function() {
-                const oldName = $(this).attr('name');
-                const newIndex = $('.item-row').length;
-                $(this).attr('name', oldName.replace('[0]', '[' + newIndex + ']'));
-            });
-
-            // Add remove button functionality
-            newField.find('.btn-remove-item').on('click', function() {
-                if ($('.item-row').length > 1) {
-                    $(this).closest('.item-row').remove();
-                }
-            });
-
-            // Append the new field to the container
-            $('#dynamic-fields').append(newField);
+$.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
-
-        // Event listener for the "Add" button
-        $(document).on('click', '#btn-add-item', function() {
-            addNewField();
-        });
-
-        // Event listener for remove buttons (using event delegation)
-        $(document).on('click', '.btn-remove-item', function() {
-            if ($('.item-row').length > 1) {
-                $(this).closest('.item-row').remove();
-            }
-        });
-
-        // Form validation and submission
-        $("#form-tambah").validate({
-            rules: {
-                event_name: {
-                    required: true,
-                    minlength: 3,
-                    maxlength: 100
-                },
-                event_code: {
-                    required: true,
-                    minlength: 3,
-                    maxlength: 10
-                },
-                event_description: {
-                    required: true,
-                },
-                start_date: {
-                    required: true,
-                    date: true
-                },
-                end_date: {
-                    required: true,
-                    date: true,
-                    greaterThan: "#start_date"
-                },
-                jenis_event_id: {
-                    required: true,
-                    number: true
-                },
-
-                point: {
-                    required: true,
-                    number: true
-                },
-
-                "participant[][jabatan_id]": {
-                    required: true
-                },
-                "participant[][user_id]": {
-                    required: true
+    });
+$(document).ready(function() {
+    $("#form-tambah").validate({
+        rules: {
+            nama: { required: true, minlength: 3, maxlength: 200 },
+            email: { required: true },
+            no_telf: { required: true, number: true, minlength: 10, maxlength: 15 },
+            alamat: { required: true, minlength: 3, maxlength: 200 },
+            provinsi: { required: true, minlength: 3, maxlength: 100 },
+            kota: { required: true, minlength: 3, maxlength: 100 },
+            kecamatan: { required: true, minlength: 3, maxlength: 100 },
+        },
+        submitHandler: function(form) {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
-            },
-            messages: {
-                end_date: {
-                    greaterThan: "End date must be after start date"
-                }
-            },
-            submitHandler: function(form) {
-                $.ajax({
-                    url: form.action,
-                    type: form.method,
-                    data: $(form).serialize(),
-                    success: function(response) {
-                        if (response.status) {
-                            $('#eventModal').modal('hide');
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: response.message
-                            });
-                            dataEvent.ajax.reload();
-                        } else {
-                            $('.error-text').text('');
-                            $.each(response.msgField, function(prefix, val) {
-                                $('#error-' + prefix).text(val[0]);
-                            });
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Terjadi Kesalahan',
-                                text: response.message
-                            });
-                        }
-                    },
-                    error: function(xhr) {
+            });
+
+            $.ajax({
+                url: form.action,
+                type: 'POST',
+                data: $(form).serialize(),
+                success: function(response) {
+                    if(response.status){
+                        $('#modal-master').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: response.message
+                        });
+                        dataAgen.ajax.reload();
+                    } else {
+                        $('.error-text').text('');
+                        $.each(response.msgField, function(prefix, val) {
+                            $('#error-' + prefix).text(val[0]);
+                        });
                         Swal.fire({
                             icon: 'error',
-                            title: 'Kesalahan',
-                            text: 'Terjadi kesalahan saat mengirim data'
+                            title: 'Terjadi Kesalahan',
+                            text: response.message
                         });
                     }
-                });
-                return false;
-            },
-            errorElement: 'span',
-            errorPlacement: function(error, element) {
-                error.addClass('invalid-feedback');
-                element.closest('.form-group').append(error);
-            },
-            highlight: function(element, errorClass, validClass) {
-                $(element).addClass('is-invalid');
-            },
-            unhighlight: function(element, errorClass, validClass) {
-                $(element).removeClass('is-invalid');
-            }
-        });
-
-        // Custom validation method to check date
-        $.validator.addMethod("greaterThan",
-            function(value, element, params) {
-                return new Date(value) >= new Date($(params).val());
-            }
-        );
+                }
+            });
+            return false;
+        },
+        errorElement: 'span',
+        errorPlacement: function(error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+        },
+        highlight: function(element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function(element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+        }
     });
-    </script>
+});
+</script>

@@ -15,21 +15,20 @@ use App\Http\Controllers\BarangController;
 |
 */
 Route::group(['prefix' => 'agen'], function () {
-            Route::get('/', [AgenController::class, 'index']);
-            Route::post('/list', [AgenController::class, 'list']);
-            Route::get('/create', [AgenController::class, 'create']);
-            Route::post('/', [AgenController::class, 'store']);
-            Route::get('/{id}/edit', [AgenController::class, 'edit']);
-            Route::get('/{id}/show', [AgenController::class, 'show']);
-            Route::put('/{id}/update', [AgenController::class, 'update']);
-            Route::get('/{id}/delete', [AgenController::class, 'confirm']);
-            Route::delete('/{id}/delete', [AgenController::class, 'delete']);
-            Route::get('/{id}', [AgenController::class, 'show']);
-            Route::get('/{id}/edit', [AgenController::class, 'edit']);
-            Route::put('/{id}', [AgenController::class, 'update']);
-            Route::delete('/{id}', [AgenController::class, 'destroy']);
-            Route::get('/{id}/export_pdf', [AgenController::class, 'export_pdf']);
+        Route::get('/', [AgenController::class, 'index']);
+        Route::post('/list', [AgenController::class, 'list']);
+        Route::get('/create', [AgenController::class, 'create']);
+        Route::post('/add', [AgenController::class, 'store']);
+        Route::get('/{id}/edit', [AgenController::class, 'edit']);
+        Route::put('/{id}/update', [AgenController::class, 'update']);
+        Route::get('/{id}/show', [AgenController::class, 'show']);
+        Route::get('/{id}/delete', [AgenController::class, 'confirm']);
+        Route::delete('/{id}/delete', [AgenController::class, 'delete']);
+        Route::get('/{id}', [AgenController::class, 'show']);
+        Route::delete('/{id}', [AgenController::class, 'destroy']);
+        Route::get('/{id}/export_pdf', [AgenController::class, 'export_pdf']);
 });                                     
+                                   
 
 Route::group(['prefix' => 'barang'], function () {
         Route::get('/', [BarangController::class, 'index']);              // menampilkan halaman awal barang
