@@ -21,8 +21,7 @@ return new class extends Migration
             $table->string('kandungan')->nullable();
             $table->string('ukuran')->nullable();
             $table->string('pic', 200)->nullable();
-            $table->double('harga_jual')->nullable();
-            $table->double('harga_beli')->nullable();
+            $table->decimal('hpp', 10, 2)->nullable();
             $table->integer('stok')->nullable();
         });
     }
