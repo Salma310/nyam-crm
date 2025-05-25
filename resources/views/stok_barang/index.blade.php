@@ -179,7 +179,7 @@
         <div class="content flex-grow-1">
             <div class="header">
                 <div class="group-btn">
-                    <button class="btn btn-primary" onclick="modalAction('{{ url('barang/create_ajax') }}')">
+                    <button class="btn btn-primary" onclick="modalAction('{{ url('barang/create') }}')">
                         <i class="fas fa-plus"></i>Add Produk</button>
                 </div>
                 <div class="search-box">
@@ -205,10 +205,7 @@
                                 Stok 
                             </th>
                             <th>
-                                Harga Beli
-                            </th>
-                            <th>
-                                Harga Jual
+                                HPP
                             </th>
                             <th>
                                 Action
@@ -270,14 +267,8 @@
                                 searchable: true
                             }, 
                             {
-                                data: 'harga_beli',
-                                name: 'harga_beli',
-                                orderable: false,
-                                searchable: true
-                            }, 
-                              {
-                                data: 'harga_jual',
-                                name: 'harga_jual',
+                                data: 'hpp',
+                                name: 'hpp',
                                 orderable: false,
                                 searchable: true
                             }, 

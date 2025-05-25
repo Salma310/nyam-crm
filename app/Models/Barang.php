@@ -12,7 +12,6 @@ class Barang extends Model
     protected $table = 'm_barang';
     protected $primaryKey = 'barang_id';
     protected $fillable = [
-        'agen_id',
         'kode_barang',
         'nama_barang',
         'kalori',
@@ -20,8 +19,7 @@ class Barang extends Model
         'kandungan',
         'ukuran',
         'pic',
-        'harga_jual',
-        'harga_beli',
+        'hpp',
         'stok'  
     ];
 }
