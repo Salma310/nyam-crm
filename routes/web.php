@@ -45,21 +45,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [BarangController::class, 'index']);              // menampilkan halaman awal barang
         Route::post('/list', [BarangController::class, 'list']);          // menampilkan data barang dalam bentuk json untuk datatables
         Route::get('/create', [BarangController::class, 'create']);       // menampilkan halaman form tambah barang
-        Route::post('/', [BarangController::class, 'store']);
-        Route::get('/create_ajax', [BarangController::class, 'create_ajax']);
-        Route::post('/ajax', [BarangController::class, 'store_ajax']);                 // menyimpan data barang baru
-        Route::get('/{id}', [BarangController::class, 'show']);            // menampilkan detail barang
-        Route::get('/{id}/show_ajax', [BarangController::class, 'show_ajax']);
+        Route::post('/add', [BarangController::class, 'store']);
+        Route::get('/{id}/show', [BarangController::class, 'show']);            // menampilkan detail barang
         Route::get('/{id}/edit', [BarangController::class, 'edit']);       // menampilkan halaman form edit barang
-        Route::put('/{id}', [BarangController::class, 'update']);          // menyimpan perubahan data barang
-        Route::get('/{id}/edit_ajax', [BarangController::class, 'edit_ajax']);
-        Route::put('/{id}/update_ajax', [BarangController::class, 'update_ajax']);
-        Route::get('/{id}/delete_ajax', [BarangController::class, 'confirm_ajax']);
-        Route::delete('/{id}/delete_ajax', [BarangController::class, 'delete_ajax']);
-        Route::get('/import', [BarangController::class, 'import']);
-        Route::post('/import_ajax', [BarangController::class, 'import_ajax']);
-        Route::get('/export_excel', [BarangController::class, 'export_excel']);
-        Route::get('/export_pdf', [BarangController::class, 'export_pdf']);
+        Route::put('/{id}/update', [BarangController::class, 'update']);          // menyimpan perubahan data barang
+        Route::get('/{id}/delete', [BarangController::class, 'confirm']);
+        Route::delete('/{id}/delete', [BarangController::class, 'delete']);
     });
 
     Route::group(['prefix' => 'transaksi'], function () {
