@@ -1,7 +1,6 @@
-<aside class="main-sidebar elevation-4">
+<aside class="main-sidebar elevation-3">
     <a href="#" class="brand-link text-center">
-        <img src="{{ asset('logo.png') }}" alt="Nyam Logo" style="width: 40px;">
-        <span class="brand-text font-weight-bold">Nyam!</span>
+        <img src="{{ asset('logo.png') }}" alt="Nyam Logo" style="width: 60px;">
     </a>
 
     <div class="sidebar">
