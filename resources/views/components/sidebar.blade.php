@@ -8,13 +8,15 @@
         <nav class="mt-3">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
                 <li class="nav-item">
-                    <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('dashboard') }}"
+                        class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/transaksi') }}" class="nav-link {{ request()->is('transaksi*') ? 'active' : '' }}">
+                    <a href="{{ url('/transaksi') }}"
+                        class="nav-link {{ request()->is('transaksi*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-chart-bar"></i>
                         <p>Transaksi</p>
                     </a>
@@ -32,7 +34,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('history') }}" class="nav-link {{ request()->routeIs('history') ? 'active' : '' }}">
+                    <a href="{{ route('history') }}"
+                        class="nav-link {{ request()->routeIs('history') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-history"></i>
                         <p>History</p>
                     </a>
@@ -44,9 +47,16 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('profile') }}" class="nav-link {{ request()->routeIs('profile') ? 'active' : '' }}">
+                    <a href="{{ route('profile') }}"
+                        class="nav-link {{ request()->routeIs('profile') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user"></i>
                         <p>Profile</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link bg-danger text-white" id="logout-btn">
+                        <i class="nav-icon fas fa-sign-out-alt"></i>
+                        <p>Logout</p>
                     </a>
                 </li>
             </ul>

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AgenController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +16,17 @@ use App\Http\Controllers\TransaksiController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::group(['prefix' => 'agen'], function () {
+
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::group(['prefix' => 'agen'], function () {
         Route::get('/', [AgenController::class, 'index']);
         Route::post('/list', [AgenController::class, 'list']);
         Route::get('/create', [AgenController::class, 'create']);
@@ -28,10 +39,9 @@ Route::group(['prefix' => 'agen'], function () {
         Route::get('/{id}', [AgenController::class, 'show']);
         Route::delete('/{id}', [AgenController::class, 'destroy']);
         Route::get('/{id}/export_pdf', [AgenController::class, 'export_pdf']);
-});                                     
-                                   
+    });
 
-Route::group(['prefix' => 'barang'], function () {
+    Route::group(['prefix' => 'barang'], function () {
         Route::get('/', [BarangController::class, 'index']);              // menampilkan halaman awal barang
         Route::post('/list', [BarangController::class, 'list']);          // menampilkan data barang dalam bentuk json untuk datatables
         Route::get('/create', [BarangController::class, 'create']);       // menampilkan halaman form tambah barang
@@ -67,31 +77,29 @@ Route::group(['prefix' => 'barang'], function () {
         // Route::get('/{id}/export_pdf', [TransaksiController::class, 'export_pdf']);
         Route::get('/{id}/print', [TransaksiController::class, 'printInvoice']); // PDF invoice
 
-});     
-Route::get('/', function () {
-    return view('dashboard');
-})->name('dashboard');
+    });
 
-// Route::get('/transaksi', function () {
-//     return view('transaksi.index');
-// })->name('transaksi');
+    // Route::get('/transaksi', function () {
+    //     return view('transaksi.index');
+    // })->name('transaksi');
 
-Route::get('/barang', function () {
-    return view('stok_barang.index');
-})->name('barang');
+    Route::get('/barang', function () {
+        return view('stok_barang.index');
+    })->name('barang');
 
-// Route::get('/agen', function () {
-//     return view('agen.index');
-// })->name('agen');
+    // Route::get('/agen', function () {
+    //     return view('agen.index');
+    // })->name('agen');
 
-Route::get('/history', function () {
-    return view('history.index');
-})->name('history');
+    Route::get('/history', function () {
+        return view('history.index');
+    })->name('history');
 
-Route::get('/inbox', function () {
-    return view('inbox.index');
-})->name('inbox');
+    Route::get('/inbox', function () {
+        return view('inbox.index');
+    })->name('inbox');
 
-Route::get('/profile', function () {
-    return view('profile.index');
-})->name('profile');
+    Route::get('/profile', function () {
+        return view('profile.index');
+    })->name('profile');
+});
