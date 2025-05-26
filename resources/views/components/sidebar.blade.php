@@ -45,19 +45,6 @@
                         <p>Inbox</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ route('profile') }}"
-                        class="nav-link {{ request()->routeIs('profile') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-user"></i>
-                        <p>Profile</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link bg-danger text-white" id="logout-btn">
-                        <i class="nav-icon fas fa-sign-out-alt"></i>
-                        <p>Logout</p>
-                    </a>
-                </li>
             </ul>
         </nav>
     </div>
