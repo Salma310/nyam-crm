@@ -11,6 +11,7 @@ use App\Models\Agen;
 use App\Models\Transaksi;
 use App\Models\Barang;
 use App\Models\DetailTransaksi;
+use App\Models\HargaAgen;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 
@@ -60,17 +61,84 @@ class TransaksiController extends Controller
 
     public function show($id)
     {
-        // Ambil transaksi sekaligus relasi agen dan detail transaksi + barang
+        // Ambil transaksi lengkap dengan relasi agen, detail, dan barang
         $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
+        $agenId = $transaksi->agen_id;
 
-        // Hitung total harga (jumlahkan harga_jual * qty di detail transaksi)
         $totalHarga = 0;
+
         foreach ($transaksi->detailTransaksi as $detail) {
-            $totalHarga += $detail->barang->harga_jual * $detail->qty;
+            $barangId = $detail->barang_id;
+
+            // Ambil harga agen dari tabel m_harga_agen sesuai agen_id dan barang_id
+            $hargaAgen = HargaAgen::where('agen_id', $agenId)
+                                    ->where('barang_id', $barangId)
+                                    ->first();
+
+            if ($hargaAgen) {
+                // Hitung harga setelah diskon dan pajak
+                $hargaSatuan = $hargaAgen->harga;
+                $diskon = $hargaAgen->diskon + $hargaAgen->diskon_2;
+                $pajak = $hargaAgen->pajak;
+
+                // $totalJual = $hargaAgen * $detail->qty;
+                $Agen = $hargaAgen;
+
+                $hargaSetelahDiskon = $hargaSatuan * (1 - $diskon / 100);
+                $hargaFinal = ($hargaSetelahDiskon + $pajak) * $detail->qty;
+
+                $totalHarga += $hargaFinal;
+            }
         }
 
         return view('transaksi.detail', compact('transaksi', 'totalHarga'));
     }
+
+    // public function show($id)
+    // {
+    //     // Ambil transaksi lengkap beserta agen, detail transaksi, dan barang
+    //     $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
+    //     $agenId = $transaksi->agen_id;
+
+    //     // Ambil harga untuk semua barang di transaksi ini sesuai agen
+    //     $hargaAgen = [];
+    //     $totalHarga = 0;
+    //     foreach ($transaksi->detailTransaksi as $detail) {
+    //         $barangId = $detail->barang_id;
+
+    //         $harga = HargaAgen::where('agen_id', $agenId)
+    //             ->where('barang_id', $barangId)
+    //             ->first();
+
+    //         if ($harga) {
+    //             $hargaAgen[$barangId] = $harga;
+    //         }
+    //         $totalHarga += $harga * $detail->qty;
+
+            
+    //     }
+
+    //     return view('transaksi.detail', compact('transaksi', 'hargaAgen'));
+    // }
+
+    // public function show($id)
+    // {
+    //     // Ambil transaksi sekaligus relasi agen dan detail transaksi + barang
+    //     $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang', 'detailTransaksi.hargaAgen'])->findOrFail($id);
+    //     $agenId = $transaksi->agen_id;
+    //     $barangId = $transaksi->barang_id;
+    //     $hargaAgen = $transaksi->first(function ($row) use ($agenId, $barangId) {
+    //         return $row->agen_id == $agenId && $row->barang_id == $barangId;
+    //     });
+    //     // Hitung total harga (jumlahkan harga_jual * qty di detail transaksi)
+    //     $totalHarga = 0;
+    //     foreach ($transaksi->detailTransaksi as $detail) {
+    //         // $totalHarga += $detail->barang->harga_jual * $detail->qty;
+    //         $totalHarga += $hargaAgen * $detail->qty;
+    //     }
+
+    //     return view('transaksi.detail', compact('transaksi', 'totalHarga'));
+    // }
 
 
     public function printInvoice($id)

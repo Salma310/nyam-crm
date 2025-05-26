@@ -54,16 +54,18 @@ class TransaksiSeeder extends Seeder
                 if (!$hargaRow) continue;
 
                 $hargaBarang = $hargaRow->harga;
-                $diskon1 = $hargaRow->diskon;
-                $diskon2 = $hargaRow->diskon_2;
-                $pajak = $hargaRow->pajak;
+                // $diskon1 = $hargaRow->diskon;
+                // $diskon2 = $hargaRow->diskon_2;
+                // $pajak = $hargaRow->pajak;
 
-                $hargaSetelahDiskon = $hargaBarang * (1 - ($diskon1 + $diskon2) / 100);
-                $hargaAkhir = ($hargaSetelahDiskon + $pajak) * $qty;
+                // $hargaSetelahDiskon = $hargaBarang * (1 - ($diskon1 + $diskon2) / 100);
+                // $hargaAkhir = ($hargaSetelahDiskon + $pajak) * $qty;
 
+                $hargaAkhir = $hargaBarang * $qty;
                 $totalHarga += $hargaAkhir;
-                $diskonTotal += ($hargaBarang * ($diskon1 + $diskon2) / 100) * $qty;
-                $pajakTotal += $pajak * $qty;
+
+                // $diskonTotal += ($hargaBarang * ($diskon1 + $diskon2) / 100) * $qty;
+                // $pajakTotal += $pajak * $qty;
 
                 DB::table('t_detail_transaksi')->insert([
                     'transaksi_id' => $transaksiId,

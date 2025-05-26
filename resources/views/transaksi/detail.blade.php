@@ -42,8 +42,10 @@
                         <th>Nama Barang</th>
                         <th>Qty</th>
                         <th>Harga Jual</th>
+                        <th>Diskon</th>
+                        <th>Pajak</th>
                         <th>Total Harga</th>
-                        <th>Harga Beli</th>
+                        <th>Hpp</th>
                         <th>Keuntungan</th>
                     </tr>
                 </thead>
@@ -54,13 +56,20 @@
                     @endphp
                     @foreach ($transaksi->detailTransaksi as $detail)
                     @php
-                        $hargaJual = $detail->barang->harga_jual ?? 0;
-                        $hargaBeli = $detail->barang->harga_beli ?? 0;
+                        $hargaJual = $detail->hargaAgen->harga ?? 0;
+                        $hpp = $detail->barang->hpp ?? 0;
                         $qty = $detail->qty;
 
-                        $totalJual = $hargaJual * $qty;
-                        $totalBeli = $hargaBeli * $qty;
+                        // $totalJual = $hargaAgen * $qty;
+                        $totalBeli = $hpp * $qty;
                         $keuntungan = $totalJual - $totalBeli;
+
+                        if ($transaksi->diskon) {
+                            $totalJual -= $transaksi->diskon;
+                        } 
+                        if ($transaksi->pajak) {
+                            $totalJual += $transaksi->pajak;
+                        }
 
                         $subtotal += $totalJual;
                         $totalKeuntungan += $keuntungan;
@@ -68,21 +77,23 @@
                     <tr>
                         <td>{{ $detail->barang->kode_barang ?? '-' }}</td>
                         <td>{{ $detail->barang->nama_barang ?? '-' }}</td>
-                        <td>{{ $qty }}</td>
-                        <td>Rp {{ number_format($hargaJual, 0, ',', '.') }}</td>
+                        <td>{{ $qty }}</td>*
+                        <td>Rp {{ number_format($Agen, 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($transaksi->diskon, 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($transaksi->pajak, 0, ',', '.') }}</td>
                         <td>Rp {{ number_format($totalJual, 0, ',', '.') }}</td>
-                        <td>Rp {{ number_format($hargaBeli, 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($hpp, 0, ',', '.') }}</td>
                         <td>Rp {{ number_format($keuntungan, 0, ',', '.') }}</td>
                     </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
                     <tr class="total-row" style="background:#e7f3fc;">
-                        <td colspan="5"><strong>Total Penjualan</strong></td>
-                        <td colspan="2"><strong>Rp. {{ number_format($subtotal, 0, ',', '.') }}</strong></td>
+                        <td colspan="7"><strong>Total Penjualan</strong></td>
+                        <td colspan="2"><strong>Rp. {{ number_format($totalHarga, 0, ',', '.') }}</strong></td>
                     </tr>
                      <tr class="total-row">
-                        <td colspan="5"><strong>Total Keuntungan</strong></td>
+                        <td colspan="7"><strong>Total Keuntungan</strong></td>
                         <td colspan="2"><strong>Rp. {{ number_format($totalKeuntungan, 0, ',', '.') }}</strong></td>
                     </tr>
                 </tfoot>
