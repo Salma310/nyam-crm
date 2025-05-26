@@ -27,5 +27,10 @@ class DetailTransaksi extends Model
     {
         return $this->belongsTo(Barang::class, 'barang_id', 'barang_id');
     }
+
+     public function harga_Agen()
+    {
+        return $this->belongsTo(HargaAgen::class, 'harga_agen_id', 'harga_agen_id');
+    }
    
 }

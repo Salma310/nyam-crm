@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id('harga_agen_id');
             $table->unsignedBigInteger('agen_id')->nullable();
             $table->unsignedBigInteger('barang_id')->nullable();
-            $table->decimal('harga', 12, 2)->nullable();
-            $table->decimal('diskon', 5, 2)->default(0)->nullable();
-            $table->decimal('diskon_2', 5, 2)->default(0)->nullable();
-            $table->decimal('pajak', 10, 2)->nullable();
+            $table->double('harga', 12, 2)->nullable();
+            $table->double('diskon', 5, 2)->default(0)->nullable();
+            $table->double('diskon_2', 5, 2)->default(0)->nullable();
+            $table->double('pajak', 10, 2)->nullable();
             $table->timestamps();
 
             $table->foreign('agen_id')->references('agen_id')->on('m_agen');
