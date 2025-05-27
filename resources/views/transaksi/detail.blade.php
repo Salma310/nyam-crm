@@ -56,11 +56,11 @@
                     @endphp
                     @foreach ($transaksi->detailTransaksi as $detail)
                     @php
-                        $hargaJual = $detail->hargaAgen->harga ?? 0;
+                        // $hargaJual = $detail->hargaAgen->harga ?? 0;
                         $hpp = $detail->barang->hpp ?? 0;
                         $qty = $detail->qty;
 
-                        // $totalJual = $hargaAgen * $qty;
+                        $totalJual = $hgAgen * $qty;
                         $totalBeli = $hpp * $qty;
                         $keuntungan = $totalJual - $totalBeli;
 
@@ -77,8 +77,8 @@
                     <tr>
                         <td>{{ $detail->barang->kode_barang ?? '-' }}</td>
                         <td>{{ $detail->barang->nama_barang ?? '-' }}</td>
-                        <td>{{ $qty }}</td>*
-                        <td>Rp {{ number_format($Agen, 0, ',', '.') }}</td>
+                        <td>{{ $qty }}</td>
+                        <td>Rp {{ number_format($hgAgen, 0, ',', '.') }}</td>
                         <td>Rp {{ number_format($transaksi->diskon, 0, ',', '.') }}</td>
                         <td>Rp {{ number_format($transaksi->pajak, 0, ',', '.') }}</td>
                         <td>Rp {{ number_format($totalJual, 0, ',', '.') }}</td>
@@ -89,12 +89,12 @@
                 </tbody>
                 <tfoot>
                     <tr class="total-row" style="background:#e7f3fc;">
-                        <td colspan="7"><strong>Total Penjualan</strong></td>
-                        <td colspan="2"><strong>Rp. {{ number_format($totalHarga, 0, ',', '.') }}</strong></td>
-                    </tr>
+                        <td colspan="6"><strong>Total Penjualan</strong></td>
+                        <td colspan="3"><strong>Rp. {{ number_format($totalHarga, 0, ',', '.') }}</strong></td>
+                    </tr>   
                      <tr class="total-row">
-                        <td colspan="7"><strong>Total Keuntungan</strong></td>
-                        <td colspan="2"><strong>Rp. {{ number_format($totalKeuntungan, 0, ',', '.') }}</strong></td>
+                        <td colspan="6"><strong>Total Keuntungan</strong></td>
+                        <td colspan="3"><strong>Rp. {{ number_format($totalKeuntungan, 0, ',', '.') }}</strong></td>
                     </tr>
                 </tfoot>
             </table>
