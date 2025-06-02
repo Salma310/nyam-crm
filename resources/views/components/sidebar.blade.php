@@ -32,19 +32,19 @@
                         <p>Agen</p>
                     </a>
                 </li>
+                 <li class="nav-item">
+                    <a href="{{ url('/purchase') }}" class="nav-link {{ request()->is('purchase*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-envelope"></i>
+                        <p>Pembelian</p>
+                    </a>
+                </li>
                 <li class="nav-item">
-                    <a href="{{ route('history') }}"
+                    <a href="{{ url('/history') }}"
                         class="nav-link {{ request()->routeIs('history') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-history"></i>
                         <p>History</p>
                     </a>
                 </li>
-                {{-- <li class="nav-item">
-                    <a href="{{ route('inbox') }}" class="nav-link {{ request()->routeIs('inbox') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-envelope"></i>
-                        <p>Inbox</p>
-                    </a>
-                </li> --}}
             </ul>
         </nav>
     </div>

@@ -21,7 +21,7 @@ class HargaAgenSeeder extends Seeder
                     'harga' => rand(8000, 15000),
                     'diskon' => rand(2000, 5000),
                     'diskon_persen' => rand(0, 10),
-                    'pajak' => rand(0, 2000),
+                    'pajak' => 0,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

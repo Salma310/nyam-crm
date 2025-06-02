@@ -5,6 +5,7 @@ use App\Http\Controllers\AgenController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PurchaseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +70,19 @@ Route::middleware(['auth'])->group(function () {
         // Route::get('/{id}/export_pdf', [TransaksiController::class, 'export_pdf']);
         Route::get('/{id}/print', [TransaksiController::class, 'printInvoice']); // PDF invoice
 
+    });
+
+     Route::group(['prefix' => 'purchase'], function () {
+        Route::get('/', [PurchaseController::class, 'index']);             
+        Route::post('/list', [PurchaseController::class, 'list']);          
+        Route::get('/create', [PurchaseController::class, 'create']);     
+        Route::post('/add', [PurchaseController::class, 'store']);
+        Route::get('/{id}/show', [PurchaseController::class, 'show']);  
+        Route::get('/{id}/edit', [PurchaseController::class, 'edit']);       
+        Route::put('/{id}/update', [BarangController::class, 'update']);       
+        Route::get('/{id}/delete', [PurchaseController::class, 'confirm']);
+        Route::delete('/{id}/delete', [PurchaseController::class, 'delete']);
+        Route::get('/{id}/print', [PurchaseController::class, 'printInvoice']);
     });
 
     // Route::get('/transaksi', function () {
