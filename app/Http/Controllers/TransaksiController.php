@@ -94,57 +94,57 @@ class TransaksiController extends Controller
         return view('transaksi.detail', compact('transaksi', 'totalHarga', 'hgAgen'));
     }
 
-    public function printInvoice($id)
-    {
-        $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
-        $agenId = $transaksi->agen_id;
-
-        // Simpan semua harga_agen dalam array berdasarkan barang_id
-        $hargaAgenMap = [];
-
-        foreach ($transaksi->detailTransaksi as $detail) {
-            $barangId = $detail->barang_id;
-
-            $hargaAgen = HargaAgen::where('agen_id', $agenId)
-                                    ->where('barang_id', $barangId)
-                                    ->first();
-
-            if ($hargaAgen) {
-                $hargaAgenMap[$barangId] = $hargaAgen;
-            }
-        }
-
-        // Kirim data transaksi dan seluruh hargaAgen ke view
-        $pdf = PDF::loadView('transaksi.invoice', [
-            'transaksi' => $transaksi,
-            'hargaAgen' => $hargaAgenMap,
-        ])->setPaper('A4', 'portrait');
-
-        return $pdf->stream('invoice-' . $transaksi->kode_transaksi . '.pdf');
-    }
-
-
-
     // public function printInvoice($id)
     // {
     //     $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
     //     $agenId = $transaksi->agen_id;
+
+    //     // Simpan semua harga_agen dalam array berdasarkan barang_id
+    //     $hargaAgenMap = [];
+
     //     foreach ($transaksi->detailTransaksi as $detail) {
     //         $barangId = $detail->barang_id;
 
-    //         // Ambil harga agen dari tabel m_harga_agen sesuai agen_id dan barang_id
     //         $hargaAgen = HargaAgen::where('agen_id', $agenId)
     //                                 ->where('barang_id', $barangId)
     //                                 ->first();
 
-    //         $hargaSatuan = $hargaAgen->harga;
-    //     } 
+    //         if ($hargaAgen) {
+    //             $hargaAgenMap[$barangId] = $hargaAgen;
+    //         }
+    //     }
 
-    //     $pdf = PDF::loadView('transaksi.invoice', compact('transaksi', 'hargaSatuan'))
-    //         ->setPaper('A4', 'portrait');
+    //     // Kirim data transaksi dan seluruh hargaAgen ke view
+    //     $pdf = PDF::loadView('transaksi.invoice', [
+    //         'transaksi' => $transaksi,
+    //         'hargaAgen' => $hargaAgenMap,
+    //     ])->setPaper('A4', 'portrait');
 
     //     return $pdf->stream('invoice-' . $transaksi->kode_transaksi . '.pdf');
     // }
+
+
+
+    public function printInvoice($id)
+    {
+        $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
+        $agenId = $transaksi->agen_id;
+        foreach ($transaksi->detailTransaksi as $detail) {
+            $barangId = $detail->barang_id;
+
+            // Ambil harga agen dari tabel m_harga_agen sesuai agen_id dan barang_id
+            $hargaAgen = HargaAgen::where('agen_id', $agenId)
+                                    ->where('barang_id', $barangId)
+                                    ->first();
+
+            $hargaSatuan = $hargaAgen->harga;
+        } 
+
+        $pdf = PDF::loadView('transaksi.invoice', compact('transaksi', 'hargaSatuan'))
+            ->setPaper('A4', 'portrait');
+
+        return $pdf->stream('invoice-' . $transaksi->kode_transaksi . '.pdf');
+    }
 
     public function create()
     {

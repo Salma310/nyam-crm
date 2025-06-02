@@ -80,7 +80,7 @@
             </tr>
         </thead>
         <tbody>
-         @php
+         {{-- @php
             $subtotal = 0;
             $totalPajak = 0;
         @endphp
@@ -102,7 +102,7 @@
                 $hargaSetelahDiskon1 = $harga - $diskon1;
 
                 // Hitung diskon 2 (persen)
-                $diskonPersenValue = ($hargaSetelahDiskon1 * $diskon2) / 100;
+                // $diskonPersenValue = ($hargaSetelahDiskon1 * $diskon2) / 100;
                 // $hargaSetelahDiskon2 = $hargaSetelahDiskon1 - $diskonPersenValue;
 
                 // Hitung pajak (persen)
@@ -128,7 +128,7 @@
                 <td style="text-align: center;">{{ $qty }}</td>
                 <td style="text-align: center;">
                     Rp. {{ number_format($diskon1, 0, ',', '.') }} 
-                    {{-- + {{ $diskon2 }}% --}}
+                    {{-- + {{ $diskon2 }}% 
                 </td>
                 <td style="text-align: right;">Rp. {{ number_format($total, 0, ',', '.') }}</td>
             </tr>
@@ -156,9 +156,9 @@
                 <td colspan="4"><strong>Total Keseluruhan</strong></td>
                 <td style="text-align: right;"><strong>Rp. {{ number_format($grandTotal, 0, ',', '.') }}</strong></td>
             </tr>
-        </tfoot>
+        </tfoot> --}}
    
-        {{-- @php
+        @php
             $subtotal = 0;
         @endphp
         @foreach($transaksi->detailTransaksi as $detail)
@@ -200,7 +200,7 @@
                 <td colspan="3">Total Keseluruhan</td>
                 <td>Rp. {{ number_format($Gtotal, 0, ',', '.') }}</td>
             </tr>
-        </tfoot> --}}
+        </tfoot>
     </table>
 
     <p style="margin-top: 40px; font-style: italic; font-size: 12px;">* Terima kasih atas pembelian Anda</p>
