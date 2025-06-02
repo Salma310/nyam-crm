@@ -18,7 +18,7 @@ use Barryvdh\DomPDF\Facade\Pdf as PDF;
 class TransaksiController extends Controller
 {
     //
-     public function index()
+    public function index()
     {
         $breadcrumb = (object) [
             'title' => 'Agen',
@@ -33,8 +33,15 @@ class TransaksiController extends Controller
 
         $activeMenu = 'transaksi';
 
-        return view('transaksi.index', ['title' => $title, 'breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu, 
-            'agen' => $agen, 'transaksi' => $transaksi, 'barang' => $barang, 'detailTransaksi' => $detailTransaksi]);
+        return view('transaksi.index', [
+            'title' => $title,
+            'breadcrumb' => $breadcrumb,
+            'activeMenu' => $activeMenu,
+            'agen' => $agen,
+            'transaksi' => $transaksi,
+            'barang' => $barang,
+            'detailTransaksi' => $detailTransaksi
+        ]);
     }
 
     public function list(Request $request)
@@ -67,32 +74,69 @@ class TransaksiController extends Controller
 
         $totalHarga = 0;
 
+        $detailHarga = [];
+
         foreach ($transaksi->detailTransaksi as $detail) {
             $barangId = $detail->barang_id;
 
-            // Ambil harga agen dari tabel m_harga_agen sesuai agen_id dan barang_id
+            $hargaAgen = HargaAgen::where('agen_id', $agenId)
+                ->where('barang_id', $barangId)
+                ->first();
+
+            if ($hargaAgen) {
+                $hargaSatuan = $hargaAgen->harga;
+                $diskon = $hargaAgen->diskon + (($hargaSatuan * $hargaAgen->diskon_persen) / 100);
+                $pajak = $hargaAgen->pajak;
+
+                $hargaSetelahDiskon = $hargaSatuan - $diskon;
+                $hargaFinal = ($hargaSetelahDiskon + $pajak) * $detail->qty;
+
+                $totalHarga += $hargaFinal;
+
+                $detailHarga[] = [
+                    'detail' => $detail,
+                    'harga_satuan' => $hargaSatuan,
+                    'diskon' => $diskon,
+                    'pajak' => $pajak,
+                    'harga_final' => $hargaFinal,
+                    'hpp' => $detail->barang->hpp ?? 0,
+                ];
+            }
+        }
+
+        return view('transaksi.detail', compact('transaksi', 'totalHarga', 'detailHarga'));
+    }
+
+    public function printInvoice($id)
+    {
+        $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
+        $agenId = $transaksi->agen_id;
+
+        // Simpan semua harga_agen dalam array berdasarkan barang_id
+        $hargaAgenMap = [];
+
+        foreach ($transaksi->detailTransaksi as $detail) {
+            $barangId = $detail->barang_id;
+
             $hargaAgen = HargaAgen::where('agen_id', $agenId)
                                     ->where('barang_id', $barangId)
                                     ->first();
 
             if ($hargaAgen) {
-                // Hitung harga setelah diskon dan pajak
-                $hargaSatuan = $hargaAgen->harga;
-                $diskon = $hargaAgen->diskon + $hargaAgen->diskon_2;
-                $pajak = $hargaAgen->pajak;
-
-                // $totalJual = $hargaAgen * $detail->qty;
-                $hgAgen = $hargaSatuan;
-
-                $hargaSetelahDiskon = $hargaSatuan * (1 - $diskon / 100);
-                $hargaFinal = ($hargaSetelahDiskon + $pajak) * $detail->qty;
-
-                $totalHarga += $hargaFinal;
+                $hargaAgenMap[$barangId] = $hargaAgen;
             }
         }
 
-        return view('transaksi.detail', compact('transaksi', 'totalHarga', 'hgAgen'));
+        // Kirim data transaksi dan seluruh hargaAgen ke view
+        $pdf = PDF::loadView('transaksi.invoice', [
+            'transaksi' => $transaksi,
+            'hargaAgen' => $hargaAgenMap,
+        ])->setPaper('A4', 'portrait');
+
+        return $pdf->stream('invoice-' . $transaksi->kode_transaksi . '.pdf');
     }
+
+
 
     // public function printInvoice($id)
     // {
@@ -125,26 +169,26 @@ class TransaksiController extends Controller
 
 
 
-    public function printInvoice($id)
-    {
-        $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
-        $agenId = $transaksi->agen_id;
-        foreach ($transaksi->detailTransaksi as $detail) {
-            $barangId = $detail->barang_id;
+    // public function printInvoice($id)
+    // {
+    //     $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
+    //     $agenId = $transaksi->agen_id;
+    //     foreach ($transaksi->detailTransaksi as $detail) {
+    //         $barangId = $detail->barang_id;
 
-            // Ambil harga agen dari tabel m_harga_agen sesuai agen_id dan barang_id
-            $hargaAgen = HargaAgen::where('agen_id', $agenId)
-                                    ->where('barang_id', $barangId)
-                                    ->first();
+    //         // Ambil harga agen dari tabel m_harga_agen sesuai agen_id dan barang_id
+    //         $hargaAgen = HargaAgen::where('agen_id', $agenId)
+    //                                 ->where('barang_id', $barangId)
+    //                                 ->first();
 
-            $hargaSatuan = $hargaAgen->harga;
-        } 
+    //         $hargaSatuan = $hargaAgen->harga;
+    //     } 
 
-        $pdf = PDF::loadView('transaksi.invoice', compact('transaksi', 'hargaSatuan'))
-            ->setPaper('A4', 'portrait');
+    //     $pdf = PDF::loadView('transaksi.invoice', compact('transaksi', 'hargaSatuan'))
+    //         ->setPaper('A4', 'portrait');
 
-        return $pdf->stream('invoice-' . $transaksi->kode_transaksi . '.pdf');
-    }
+    //     return $pdf->stream('invoice-' . $transaksi->kode_transaksi . '.pdf');
+    // }
 
     public function create()
     {
@@ -152,7 +196,7 @@ class TransaksiController extends Controller
         $barang = Barang::all();
 
         return view('transaksi.create', compact('agen', 'barang'));
-    
+
         // $jenisEvent = Agen::select('jenis_event_id', 'jenis_event_name')->get();
         // $user = Barang::select('user_id', 'name')->where('role_id', 3)->get();
         // $jabatan = Position::select('jabatan_id', 'jabatan_name')->get();

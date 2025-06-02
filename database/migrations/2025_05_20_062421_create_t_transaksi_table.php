@@ -26,8 +26,8 @@ return new class extends Migration
             $table->id('transaksi_id');
             $table->string('kode_transaksi',50)->unique()->nullable();
             $table->unsignedBigInteger('agen_id')->nullable();
-            $table->double('diskon')->nullable();
-            $table->double('pajak')->nullable();
+            $table->double('diskon_transaksi')->nullable();
+            $table->double('pajak_transaksi')->nullable();
             $table->double('harga_total')->nullable();
             $table->date('tgl_transaksi')->nullable();
             $table->timestamps();
