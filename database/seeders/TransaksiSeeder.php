@@ -34,8 +34,8 @@ class TransaksiSeeder extends Seeder
             $transaksiId = DB::table('t_transaksi')->insertGetId([
                 'kode_transaksi' => $kodeTransaksi,
                 'agen_id' => $agenId,
-                'diskon' => 0, // akan dihitung dari detail
-                'pajak' => 0, // akan dihitung dari detail
+                'diskon_transaksi' => 0, // akan dihitung dari detail
+                'pajak_transaksi' => 0, // akan dihitung dari detail
                 'harga_total' => 0, // akan diupdate
                 'tgl_transaksi' => $tglTransaksi,
                 'created_at' => now(),
@@ -54,14 +54,13 @@ class TransaksiSeeder extends Seeder
                 if (!$hargaRow) continue;
 
                 $hargaBarang = $hargaRow->harga;
-                // $diskon1 = $hargaRow->diskon;
-                // $diskon2 = $hargaRow->diskon_2;
-                // $pajak = $hargaRow->pajak;
+                $diskon1 = $hargaRow->diskon;
+                $diskon2 = $hargaRow->diskon_persen;
+                $pajak = $hargaRow->pajak;
 
-                // $hargaSetelahDiskon = $hargaBarang * (1 - ($diskon1 + $diskon2) / 100);
-                // $hargaAkhir = ($hargaSetelahDiskon + $pajak) * $qty;
+                $hargaSetelahDiskon = $hargaBarang - ($diskon1 + (($diskon2 * $hargaBarang) / 100));
+                $hargaAkhir = ($hargaSetelahDiskon + $pajak) * $qty;
 
-                $hargaAkhir = $hargaBarang * $qty;
                 $totalHarga += $hargaAkhir;
 
                 // $diskonTotal += ($hargaBarang * ($diskon1 + $diskon2) / 100) * $qty;
@@ -81,8 +80,8 @@ class TransaksiSeeder extends Seeder
                 ->where('transaksi_id', $transaksiId)
                 ->update([
                     'harga_total' => $totalHarga,
-                    'diskon' => $diskonTotal,
-                    'pajak' => $pajakTotal,
+                    'diskon_transaksi' => $diskonTotal,
+                    'pajak_transaksi' => $pajakTotal,
                     'updated_at' => now(),
                 ]);
         }

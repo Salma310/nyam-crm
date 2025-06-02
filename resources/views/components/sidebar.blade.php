@@ -39,12 +39,12 @@
                         <p>History</p>
                     </a>
                 </li>
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="{{ route('inbox') }}" class="nav-link {{ request()->routeIs('inbox') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-envelope"></i>
                         <p>Inbox</p>
                     </a>
-                </li>
+                </li> --}}
             </ul>
         </nav>
     </div>
