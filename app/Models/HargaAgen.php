@@ -17,7 +17,7 @@ class HargaAgen extends Model
         'barang_id',
         'harga',
         'diskon',
-        'diskon_2',
+        'diskon_persen',
         'pajak',
     ];
 

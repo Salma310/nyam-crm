@@ -95,7 +95,7 @@
 
                 $harga = $hargaData->harga ?? 0;
                 $diskon1 = $hargaData->diskon ?? 0; // rupiah
-                // $diskon2 = $hargaData->diskon_2 ?? 0; // persen
+                $diskon2 = $hargaData->diskon_persen ?? 0; // persen
                 $pajakPersen = $hargaData->pajak ?? 0; // persen
 
                 // Hitung harga setelah diskon 1 (rupiah)
@@ -124,7 +124,7 @@
                     {{ $detail->barang->nama_barang }}<br>
                     <small>{{ $detail->barang->ukuran }}</small>
                 </td>
-                <td style="text-align: center;">Rp. {{ number_format($hargaData, 0, ',', '.') }}</td>
+                <td style="text-align: center;">Rp. {{ number_format($harga, 0, ',', '.') }}</td>
                 <td style="text-align: center;">{{ $qty }}</td>
                 <td style="text-align: center;">
                     Rp. {{ number_format($diskon1, 0, ',', '.') }} 

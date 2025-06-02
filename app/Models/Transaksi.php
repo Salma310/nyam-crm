@@ -15,6 +15,8 @@ class Transaksi extends Model
         'transaksi_id',
         'kode_transaksi',
         'agen_id',
+        'diskon_transaksi',
+        'pajak_transaksi',
         'harga_total',
         'tgl_transaksi',
     ];

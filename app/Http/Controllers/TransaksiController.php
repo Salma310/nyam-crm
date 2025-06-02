@@ -18,7 +18,7 @@ use Barryvdh\DomPDF\Facade\Pdf as PDF;
 class TransaksiController extends Controller
 {
     //
-     public function index()
+    public function index()
     {
         $breadcrumb = (object) [
             'title' => 'Agen',
@@ -33,8 +33,15 @@ class TransaksiController extends Controller
 
         $activeMenu = 'transaksi';
 
-        return view('transaksi.index', ['title' => $title, 'breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu, 
-            'agen' => $agen, 'transaksi' => $transaksi, 'barang' => $barang, 'detailTransaksi' => $detailTransaksi]);
+        return view('transaksi.index', [
+            'title' => $title,
+            'breadcrumb' => $breadcrumb,
+            'activeMenu' => $activeMenu,
+            'agen' => $agen,
+            'transaksi' => $transaksi,
+            'barang' => $barang,
+            'detailTransaksi' => $detailTransaksi
+        ]);
     }
 
     public function list(Request $request)
@@ -67,31 +74,37 @@ class TransaksiController extends Controller
 
         $totalHarga = 0;
 
+        $detailHarga = [];
+
         foreach ($transaksi->detailTransaksi as $detail) {
             $barangId = $detail->barang_id;
 
-            // Ambil harga agen dari tabel m_harga_agen sesuai agen_id dan barang_id
             $hargaAgen = HargaAgen::where('agen_id', $agenId)
-                                    ->where('barang_id', $barangId)
-                                    ->first();
+                ->where('barang_id', $barangId)
+                ->first();
 
             if ($hargaAgen) {
-                // Hitung harga setelah diskon dan pajak
                 $hargaSatuan = $hargaAgen->harga;
-                $diskon = $hargaAgen->diskon + $hargaAgen->diskon_2;
+                $diskon = $hargaAgen->diskon + (($hargaSatuan * $hargaAgen->diskon_persen) / 100);
                 $pajak = $hargaAgen->pajak;
 
-                // $totalJual = $hargaAgen * $detail->qty;
-                $hgAgen = $hargaSatuan;
-
-                $hargaSetelahDiskon = $hargaSatuan * (1 - $diskon / 100);
+                $hargaSetelahDiskon = $hargaSatuan - $diskon;
                 $hargaFinal = ($hargaSetelahDiskon + $pajak) * $detail->qty;
 
                 $totalHarga += $hargaFinal;
+
+                $detailHarga[] = [
+                    'detail' => $detail,
+                    'harga_satuan' => $hargaSatuan,
+                    'diskon' => $diskon,
+                    'pajak' => $pajak,
+                    'harga_final' => $hargaFinal,
+                    'hpp' => $detail->barang->hpp ?? 0,
+                ];
             }
         }
 
-        return view('transaksi.detail', compact('transaksi', 'totalHarga', 'hgAgen'));
+        return view('transaksi.detail', compact('transaksi', 'totalHarga', 'detailHarga'));
     }
 
     public function printInvoice($id)
@@ -106,8 +119,8 @@ class TransaksiController extends Controller
             $barangId = $detail->barang_id;
 
             $hargaAgen = HargaAgen::where('agen_id', $agenId)
-                                    ->where('barang_id', $barangId)
-                                    ->first();
+                ->where('barang_id', $barangId)
+                ->first();
 
             if ($hargaAgen) {
                 $hargaAgenMap[$barangId] = $hargaAgen;
@@ -152,7 +165,7 @@ class TransaksiController extends Controller
         $barang = Barang::all();
 
         return view('transaksi.create', compact('agen', 'barang'));
-    
+
         // $jenisEvent = Agen::select('jenis_event_id', 'jenis_event_name')->get();
         // $user = Barang::select('user_id', 'name')->where('role_id', 3)->get();
         // $jabatan = Position::select('jabatan_id', 'jabatan_name')->get();
