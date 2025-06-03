@@ -25,5 +25,8 @@ class Agen extends Model
     {
         return $this->hasMany(Transaksi::class, 'transaksi_id', 'agen_id');
     }
-
+    public function hargaAgen()
+    {
+        return $this->hasMany(HargaAgen::class, 'agen_id', 'agen_id');
+    }
 }

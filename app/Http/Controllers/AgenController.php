@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Agen;
+use App\Models\HargaAgen;
 
 class AgenController extends Controller
 {
@@ -85,11 +86,63 @@ class AgenController extends Controller
         return redirect('/');
     }
 
+    // public function show($id)
+    // {
+    //     $agen = Agen::findOrFail($id);
+    //     return response()->json($agen);
+    // }
+
     public function show($id)
     {
-        $agen = Agen::findOrFail($id);
-        return response()->json($agen);
+        // Ambil data agen dengan relasi hargaAgen dan transaksi + detail transaksi + barang
+        $agen = Agen::with([
+            'hargaAgen.barang',
+            'transaksi.detailTransaksi.barang'
+        ])->findOrFail($id);
+
+         if (!$agen) {
+            return view('agen.show', ['agen' => null]);
+        }
+
+        return view('agen.detail', [
+            'agen' => $agen,
+            'harga_produk' => $agen->hargaAgen,
+            'transaksi' => $agen->transaksi,
+        ]);
+
+        // return response()->json([
+        //     'status' => true,
+        //     'data' => [
+        //         'agen' => $agen,
+        //         'harga_produk' => $agen->hargaAgen, // harga khusus agen
+        //         'transaksi' => $agen->transaksi     // semua transaksi agen beserta detail
+        //     ]
+        // ]);
     }
+
+    public function update_harga(Request $request, $id)
+    {
+        $request->validate([
+            'harga' => 'required|numeric|min:0',
+            'diskon' => 'required|numeric|min:0',
+            'diskon_persen' => 'required|numeric|min:0',
+        ]);
+
+        $hargaAgen = HargaAgen::findOrFail($id);
+        $hargaAgen->harga = $request->harga;
+        $hargaAgen->diskon = $request->diskon;
+        $hargaAgen->diskon_persen = $request->diskon_persen;
+
+        // Hitung diskon persen otomatis jika diperlukan
+        // if ($hargaAgen->harga > 0) {
+        //     $hargaAgen->diskon_persen = ($request->diskon / $request->harga) * 100;
+        // }
+
+        $hargaAgen->save();
+
+        return back()->with('success', 'Harga dan diskon berhasil diperbarui.');
+    }
+
 
     public function edit($id)
     {
