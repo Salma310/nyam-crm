@@ -46,7 +46,7 @@
     }
 </style>
 
-<form action="{{ url('barang/add') }}" method="POST" id="form-tambah">
+<form action="{{ url('barang/add') }}" method="POST" id="form-tambah" enctype="multipart/form-data">
     @csrf
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -69,13 +69,29 @@
                         'stok' => 'Stok',
                         'hpp' => 'HPP',
                     ];
+
+                    $placeholders = [
+                        'kode_barang' => 'Contoh: BRG001',
+                        'nama_barang' => 'Contoh: Puree Apel Organik',
+                        'kalori' => 'Contoh: 80 kkal',
+                        'komposisi' => 'Contoh: Apel, Air',
+                        'kandungan' => 'Contoh: Vitamin C, Serat',
+                        'ukuran' => 'Contoh: 100gr',
+                        'pic' => 'Unggah gambar produk (jpg/jpeg/png)',
+                        'stok' => 'Contoh: 120',
+                        'hpp' => 'Contoh: 7500.00',
+                    ];
                 @endphp
 
                 @foreach ($fields as $field => $label)
                     <div class="form-group">
                         <label>{{ $label }}</label>
-                        <input type="{{ in_array($field, ['stok', 'hpp']) ? 'number' : 'text' }}"
-                            name="{{ $field }}" id="{{ $field }}" class="form-control" required>
+                        <input
+                            type="{{ in_array($field, ['stok', 'hpp']) ? 'number' : ($field === 'pic' ? 'file' : 'text') }}"
+                            name="{{ $field }}" id="{{ $field }}" class="form-control"
+                            placeholder="{{ $field !== 'pic' ? $placeholders[$field] : '' }}"
+                            {{ $field === 'pic' ? '' : 'required' }}>
+                        <small class="form-text text-muted">{{ $placeholders[$field] }}</small>
                         <small id="error-{{ $field }}" class="error-text form-text text-danger"></small>
                     </div>
                 @endforeach
@@ -132,10 +148,14 @@
                 },
             },
             submitHandler: function(form) {
+                var formData = new FormData(form);
+
                 $.ajax({
                     url: form.action,
                     type: 'POST',
-                    data: $(form).serialize(),
+                    data: formData,
+                    contentType: false,
+                    processData: false,
                     success: function(response) {
                         if (response.status) {
                             $('#barangModal').modal('hide');

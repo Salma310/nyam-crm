@@ -16,7 +16,8 @@
         </div>
     </div>
 @else
-    <form action="{{ url('/barang/' . $barang->barang_id . '/update') }}" method="POST" id="form-edit-barang">
+    <form action="{{ url('/barang/' . $barang->barang_id . '/update') }}" method="POST" id="form-edit-barang"
+        enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div id="modal-master" class="modal-dialog modal-lg" role="document">
@@ -58,9 +59,13 @@
                         <small id="error-ukuran" class="error-text form-text text-danger"></small>
                     </div>
                     <div class="form-group">
-                        <label>PIC</label>
-                        <input value="{{ $barang->pic }}" type="text" name="pic" id="pic" class="form-control"
-                            required>
+                        <label>Gambar (PIC)</label><br>
+                        @if ($barang->pic)
+                            <img src="{{ asset('uploads/barang/' . $barang->pic) }}" alt="gambar" class="mb-2"
+                                width="100">
+                        @endif
+                        <input type="file" name="pic" id="pic" class="form-control">
+                        <small class="form-text text-muted">Biarkan kosong jika tidak ingin mengubah gambar</small>
                         <small id="error-pic" class="error-text form-text text-danger"></small>
                     </div>
                     <div class="form-group">
@@ -71,8 +76,8 @@
                     </div>
                     <div class="form-group">
                         <label>Stok</label>
-                        <input value="{{ $barang->stok }}" type="number" name="stok" id="stok"
-                            class="form-control" required>
+                        <input value="{{ $barang->stok }}" type="number" name="stok" id="stok" class="form-control"
+                            required>
                         <small id="error-stok" class="error-text form-text text-danger"></small>
                     </div>
                 </div>
@@ -116,10 +121,14 @@
                     },
                 },
                 submitHandler: function(form) {
+                    let formData = new FormData(form);
+
                     $.ajax({
                         url: form.action,
                         type: form.method,
-                        data: $(form).serialize(),
+                        data: formData,
+                        processData: false,
+                        contentType: false,
                         success: function(response) {
                             if (response.status) {
                                 $('#barangModal').modal('hide');
