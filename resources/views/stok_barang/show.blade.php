@@ -66,6 +66,55 @@
                         <td class="col-9">{{ $barang->stok }}</td>
                     </tr>
                 </table>
+
+                <hr>
+                <h5>Histori Stok Keluar</h5>
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Kode Transaksi</th>
+                            <th>Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($histori_keluar as $keluar)
+                            <tr>
+                                <td>{{ $keluar->transaksi->tgl_transaksi ?? '-' }}</td>
+                                <td>{{ $keluar->transaksi->kode_transaksi ?? '-' }}</td>
+                                <td>-{{ $keluar->qty }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center">Tidak ada data</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+
+                <h5>Histori Stok Masuk</h5>
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Kode Transaksi Masuk</th>
+                            <th>Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($histori_masuk as $masuk)
+                            <tr>
+                                <td>{{ $masuk->purchase->tgl_transaksi ?? '-' }}</td>
+                                <td>{{ $masuk->purchase->kode_transaksi_masuk ?? '-' }}</td>
+                                <td>+{{ $masuk->qty }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center">Tidak ada data</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
             <div class="modal-footer">
                 <button type="button" data-dismiss="modal" class="btn btn-primary">Tutup</button>
