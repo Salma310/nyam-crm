@@ -41,7 +41,6 @@ class BarangController extends Controller
 
     public function store(Request $request)
     {
-        //cek apsakah request berupa ajax
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
                 'kode_barang' => 'required|unique:m_barang,kode_barang',
@@ -50,7 +49,7 @@ class BarangController extends Controller
                 'komposisi' => 'required',
                 'kandungan' => 'required',
                 'ukuran' => 'required',
-                'pic' => 'required',
+                'pic' => 'required|image|mimes:jpg,jpeg,png|max:2048',
                 'stok' => 'required|integer',
                 'hpp' => 'required|numeric',
             ];
@@ -59,18 +58,29 @@ class BarangController extends Controller
 
             if ($validator->fails()) {
                 return response()->json([
-                    'status' => false, // response status, false: error/gagal, true: berhasil
+                    'status' => false,
                     'message' => 'Validasi Gagal',
-                    'msgField' => $validator->errors(), // pesan error validasi
+                    'msgField' => $validator->errors(),
                 ]);
             }
 
-            Barang::create($request->all());
+            $data = $request->except('pic');
+
+            if ($request->hasFile('pic')) {
+                $file = $request->file('pic');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/barang'), $filename);
+                $data['pic'] = $filename;
+            }
+
+            Barang::create($data);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Data barang berhasil disimpan'
             ]);
         }
+
         return redirect('/');
     }
 
@@ -95,13 +105,6 @@ class BarangController extends Controller
     {
         $barang = Barang::findOrFail($id);
 
-        if (!$barang) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Data barang tidak ditemukan.'
-            ], 404);
-        }
-        // cek apakah request dari ajax
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
                 'nama_barang' => 'required',
@@ -109,7 +112,7 @@ class BarangController extends Controller
                 'komposisi' => 'required',
                 'kandungan' => 'required',
                 'ukuran' => 'required',
-                'pic' => 'required',
+                'pic' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'stok' => 'required|integer',
                 'hpp' => 'required|numeric',
             ];
@@ -118,26 +121,34 @@ class BarangController extends Controller
 
             if ($validator->fails()) {
                 return response()->json([
-                    'status' => false, // respon json, true: berhasil, false: gagal
-                    'message' => 'Validasi gagal.',
-                    'msgField' => $validator->errors() // menunjukkan field mana yang error
-                ]);
-            }
-
-            $check = Barang::find($id);
-
-            if ($check) {
-                $check->update($request->all());
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Data berhasil diupdate'
-                ]);
-            } else {
-                return response()->json([
                     'status' => false,
-                    'message' => 'Data tidak ditemukan'
+                    'message' => 'Validasi gagal.',
+                    'msgField' => $validator->errors()
                 ]);
             }
+
+            $data = $request->except('pic');
+
+            if ($request->hasFile('pic')) {
+                // Hapus gambar lama jika ada dan file-nya ada di disk
+                $gambarLama = public_path('uploads/barang/' . $barang->pic);
+                if ($barang->pic && file_exists($gambarLama)) {
+                    unlink($gambarLama);
+                }
+
+                // Simpan gambar baru
+                $file = $request->file('pic');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/barang'), $filename);
+                $data['pic'] = $filename;
+            }
+
+            $barang->update($data);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Data berhasil diupdate'
+            ]);
         }
 
         return redirect('/');
@@ -156,7 +167,15 @@ class BarangController extends Controller
 
             if ($barang) {
                 try {
+                    // Hapus file gambar jika ada dan file-nya masih tersedia
+                    $gambarPath = public_path('uploads/barang/' . $barang->pic);
+                    if ($barang->pic && file_exists($gambarPath)) {
+                        unlink($gambarPath);
+                    }
+
+                    // Hapus data dari database
                     $barang->delete();
+
                     return response()->json([
                         'status' => true,
                         'message' => 'Data berhasil dihapus'
