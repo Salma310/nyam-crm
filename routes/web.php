@@ -5,6 +5,7 @@ use App\Http\Controllers\AgenController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PurchaseController;
 
 /*
@@ -24,9 +25,7 @@ Route::post('/ubah-password', [AuthController::class, 'ubahPassword'])->name('ub
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::group(['prefix' => 'agen'], function () {
         Route::get('/', [AgenController::class, 'index']);

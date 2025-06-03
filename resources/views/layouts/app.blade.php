@@ -14,32 +14,94 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <style>
+        /* Sidebar Background & Brand Area */
         .brand-link {
             background-color: #f89f24;
-            color: white;
+            color: #fff;
+            font-weight: bold;
+            font-size: 18px;
+            padding: 10px 0;
         }
+
+        .nav-header {
+            font-size: 13px;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #ffffff;
+            letter-spacing: 1px;
+            padding: 10px 15px 5px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-header::before {
+            content: "\f0da";
+            /* FontAwesome arrow */
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            margin-right: 5px;
+        }
+
 
         .main-sidebar {
             background-color: #f89f24 !important;
+            font-family: 'Poppins', sans-serif;
         }
 
+        /* Default Menu Link */
         .nav-sidebar .nav-link {
-            color: white;
+            color: #fff;
+            transition: background-color 0.2s ease-in-out;
         }
 
+        /* Hover Effect */
+        .nav-sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.341);
+            color: #fff;
+        }
+
+        /* Active Menu */
         .nav-sidebar .nav-link.active {
             background-color: #1e40af;
-            color: white;
+            /* Deep Blue */
+            color: #fff;
+            font-weight: 600;
         }
 
+        /* Nav Icon */
+        .nav-sidebar .nav-icon {
+            color: #fff;
+        }
+
+        /* Sidebar collapse: center icon & hide text */
         .sidebar-mini.sidebar-collapse .main-sidebar .nav-link p {
             display: none;
-            /* sembunyikan label teks saat collapse */
         }
 
         .sidebar-mini.sidebar-collapse .main-sidebar .nav-icon {
             margin: 0 auto;
-            /* icon center */
+        }
+
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+            padding: 10px 15px;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .collapsible-header:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .collapsible-content {
+            transition: max-height 0.3s ease;
+            overflow: hidden;
+        }
+
+        .collapsible-content.hidden {
+            display: none;
         }
     </style>
 </head>
@@ -198,7 +260,22 @@
             });
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const headers = document.querySelectorAll('.collapsible-header');
 
+            headers.forEach(header => {
+                header.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const target = document.querySelector(targetId);
+
+                    if (target) {
+                        target.classList.toggle('hidden');
+                    }
+                });
+            });
+        });
+    </script>
     @stack('js')
 </body>
 
