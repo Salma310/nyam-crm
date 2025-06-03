@@ -223,7 +223,7 @@
 
         @push('js')
             <script>
-                var dataEvent;
+                var dataPurchase;
 
                 function modalAction(url = '') {
                     $('#myModal').load(url, function() {
@@ -232,7 +232,7 @@
                 }
 
                 $(document).ready(function() {
-                    dataEvent = $('#purchaseTable').DataTable({
+                    dataPurchase = $('#purchaseTable').DataTable({
                         processing: true,
                         serverSide: true,
                         searching: false,
@@ -241,7 +241,7 @@
                             "url": "{{ url('purchase/list') }}",
                             "datatypes": "json",
                             "type": "POST"
-                        },
+                        },  
                         columns: [{
                                 data: "DT_RowIndex",
                                 name: "DT_RowIndex",
@@ -288,9 +288,11 @@
                     });
                 });
 
-                // $('#jenis_event_id').on('change', function() {
-                //     dataEvent.ajax.reload();
-                // });
+                loadData();
+
+                $('#searchInput').on('keyup', function () {
+                    dataPurchase.search(this.value).draw();
+                });
 
                 function searchTable() {
                     var input, filter, table, tr, td, i, j, txtValue;

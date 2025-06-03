@@ -1,28 +1,21 @@
-@extends('layouts.app')
-
-@section('title', 'Detail Pembelian')
-
-@section('content')
+<div id="modal-master" class="modal-dialog modal-xl" role="document">
+    <div class="modal-content p-4">
+        <div class="modal-header">
+            <h2>Detail Pembelian</h2>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+        </div>
     <div class="container mt-4">
-        <h2>Detail Pembelian</h2>
         <div class="d-flex justify-content-between mb-3">
             {{-- Kiri --}}
             <div>
                 <p><strong>Kode Pembelian:</strong> {{ $purchase->kode_transaksi_masuk }}</p>
                 <p><strong>Tanggal:</strong> {{ \Carbon\Carbon::parse($purchase->tgl_transaksi)->format('d-m-Y') }}</p>
                 <p><strong>Total Harga:</strong> Rp {{ number_format($purchase->harga_total, 0, ',', '.') }}</p>
-                {{-- <h5>Data Pembelian</h5>
-                <p><strong>Nama:</strong> {{ $transaksi->agen->nama ?? '-' }}</p>
-                <p><strong>Alamat:</strong> {{ $transaksi->agen->alamat ?? '-' }}</p>
-                <p><strong>Kecamatan:</strong> {{ $transaksi->agen->kecamatan ?? '-' }}</p>
-                <p><strong>Kota:</strong> {{ $transaksi->agen->kota ?? '-' }}</p>
-                <p><strong>Provinsi:</strong> {{ $transaksi->agen->provinsi ?? '-' }}</p>
-                <p><strong>No. Telp:</strong> {{ $transaksi->agen->no_telf ?? '-' }}</p> --}}
             </div> 
 
             {{-- Kanan --}}
             <div class="text-end">
-                {{-- <h5>Detail Transaksi</h5> --}}
                 <a href="{{ url('purchase/' . $purchase->transaksi_masuk_id . '/print') }}" target="_blank"
                     class="btn btn-primary btn-sm" title="Cetak Invoice">
                     <i class="fas fa-print"></i> Print
@@ -51,15 +44,13 @@
                             $subtotal = 0;
                             $grandTotal = 0;
                         @endphp
-                        {{-- @foreach ($detailHarga as $item)
+                        @foreach ($detailHarga as $item)
                             @php
                                 $detail = $item['detail'];
                                 $qty = $detail->qty;
                                 $hpp = $item['hpp'];
-                                $totalBeli = $hpp * $qty;
-                                $keuntungan = $item['harga_final'] - $totalBeli;
-                                $totalKeuntungan += $keuntungan;
-                                $totalSemua = $totalHarga + $transaksi->pajak_transaksi;
+                                $subtotal = $item['subtotal'];
+                                $hargaSatuan = $item['harga_satuan'];
                             @endphp
                             <tr>
                                 <td>{{ $detail->barang->kode_barang ?? '-' }}</td>
@@ -68,27 +59,27 @@
                                 <td>Rp {{ number_format($hargaSatuan, 0, ',', '.') }}</td>
                                 <td>Rp {{ number_format($subtotal, 0, ',', '.') }}</td>
                             </tr>
-                        @endforeach --}}
+                        @endforeach
                     </tbody>
                     <tfoot>
                         <tr class="total-row">
-                            <td colspan="6"><strong>Diskon</strong></td>
-                            <td colspan="3"><strong>Rp. {{ number_format($purchase->diskon_transaksi, 0, ',', '.') }}</strong>
+                            <td colspan="3"><strong>Diskon</strong></td>
+                            <td colspan="2"><strong>Rp. {{ number_format($purchase->diskon_transaksi, 0, ',', '.') }}</strong>
                             </td>
                         </tr>
                         <tr class="total-row">
-                            <td colspan="6"><strong>Pajak</strong></td>
-                            <td colspan="3"><strong>Rp. {{ number_format($purchase->pajak_transaksi, 0, ',', '.') }}</strong>
+                            <td colspan="3"><strong>Pajak</strong></td>
+                            <td colspan="2"><strong>Rp. {{ number_format($purchase->pajak_transaksi, 0, ',', '.') }}</strong>
                             </td>
                         </tr>
                         <tr class="total-row" style="background:#e7f3fc;">
-                            <td colspan="6"><strong>Total Penjualan</strong></td>
-                            <td colspan="3"><strong>Rp. {{ number_format($purchase->harga_total, 0, ',', '.') }}</strong></td>
+                            <td colspan="3"><strong>Total Penjualan</strong></td>
+                            <td colspan="2"><strong>Rp. {{ number_format($purchase->harga_total, 0, ',', '.') }}</strong></td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
         </div>
-        <a href="{{ url('/purchase') }}" class="btn btn-warning">Kembali</a>
     </div>
-@endsection
+    </div>
+</div>
