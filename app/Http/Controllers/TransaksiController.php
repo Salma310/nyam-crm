@@ -13,6 +13,8 @@ use App\Models\Barang;
 use App\Models\DetailTransaksi;
 use App\Models\HargaAgen;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
+use App\Mail\InvoiceMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 
@@ -152,6 +154,61 @@ class TransaksiController extends Controller
         ])->setPaper('A4', 'portrait');
 
         return $pdf->stream('invoice-' . $transaksi->kode_transaksi . '.pdf');
+    }
+
+    public function sendInvoiceByEmail($id)
+    {
+        try {
+            $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
+            $agenId = $transaksi->agen_id;
+
+            $hargaAgenMap = [];
+            $subtotal = 0;
+
+            foreach ($transaksi->detailTransaksi as $detail) {
+                $barangId = $detail->barang_id;
+
+                $hargaAgen = HargaAgen::where('agen_id', $agenId)
+                    ->where('barang_id', $barangId)
+                    ->first();
+
+                if ($hargaAgen) {
+                    $hargaSatuan = $hargaAgen->harga;
+                    $diskon = $hargaAgen->diskon + (($hargaSatuan * $hargaAgen->diskon_persen) / 100);
+                    $hargaSetelahDiskon = $hargaSatuan - $diskon;
+                    $hargaFinal = $hargaSetelahDiskon * $detail->qty;
+                    $totalDiskonItem = $diskon * $detail->qty;
+
+                    $subtotal += $hargaFinal;
+
+                    $hargaAgenMap[$barangId] = [
+                        'harga_satuan' => $hargaSatuan,
+                        'totalDiskonItem' => $totalDiskonItem,
+                        'harga_setelah_diskon' => $hargaSetelahDiskon,
+                        'harga_final' => $hargaFinal
+                    ];
+                }
+            }
+
+            $grandTotal = $subtotal - ($transaksi->diskon ?? 0) + ($transaksi->pajak_transaksi ?? 0);
+
+            $pdf = PDF::loadView('transaksi.invoice', [
+                'transaksi' => $transaksi,
+                'hargaAgenMap' => $hargaAgenMap,
+                'subtotal' => $subtotal,
+                'Gtotal' => $grandTotal
+            ]);
+
+            $fileName = 'invoice-' . $transaksi->kode_transaksi . '.pdf';
+            $filePath = storage_path('app/temp/' . $fileName);
+            $pdf->save($filePath);
+
+            Mail::to($transaksi->agen->email)->send(new InvoiceMail($filePath, $fileName));
+
+            return response()->json(['message' => 'Email berhasil dikirim.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal mengirim email: ' . $e->getMessage()], 500);
+        }
     }
 
     public function sendInvoiceToWablas($id)

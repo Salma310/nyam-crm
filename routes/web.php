@@ -70,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
         // Route::get('/{id}/export_pdf', [TransaksiController::class, 'export_pdf']);
         Route::get('/{id}/print', [TransaksiController::class, 'printInvoice']); // PDF invoice
         Route::get('/{id}/send', [TransaksiController::class, 'sendInvoiceToWablas']); // Send invoice
+        Route::get('/{id}/sendByEmail', [TransaksiController::class, 'sendInvoiceByEmail']); // Send invoice
     });
 
      Route::group(['prefix' => 'purchase'], function () {

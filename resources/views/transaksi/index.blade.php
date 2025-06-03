@@ -259,25 +259,25 @@
                                 name: 'nama_agen',
                                 orderable: false,
                                 searchable: true
-                            }, 
+                            },
                             {
                                 data: 'total_qty',
                                 name: 'total_qty',
                                 orderable: false,
                                 searchable: true
-                            }, 
-                             {
+                            },
+                            {
                                 data: 'harga_total',
                                 name: 'harga_total',
                                 orderable: false,
                                 searchable: true
-                            }, 
-                             {
+                            },
+                            {
                                 data: 'tgl_transaksi',
                                 name: 'tgl_transaksi',
                                 orderable: false,
                                 searchable: true
-                            }, 
+                            },
                             {
                                 data: "aksi",
                                 name: "aksi",

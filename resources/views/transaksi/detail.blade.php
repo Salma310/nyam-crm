@@ -32,6 +32,13 @@
                         class="btn btn-primary btn-sm" title="Kirim Invoice">
                         <i class="fas fa-wa"></i> Send WA
                     </a>
+                    <button type="button" class="btn btn-primary btn-sm btn-send-email"
+                        data-id="{{ $transaksi->transaksi_id }}" title="Kirim Invoice">
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        <i class="fas fa-envelope"></i>
+                        <span class="btn-text"> Send Email</span>
+                    </button>
+
                 </div>
             </div>
 
@@ -111,3 +118,65 @@
         </div>
     </div>
 </div>
+<script>
+    document.querySelector('.btn-send-email').addEventListener('click', function() {
+        const btn = this;
+        const transaksiId = btn.getAttribute('data-id');
+        const spinner = btn.querySelector('.spinner-border');
+        const btnText = btn.querySelector('.btn-text');
+
+        Swal.fire({
+            title: 'Kirim Invoice?',
+            text: "Invoice akan dikirim ke email agen.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Kirim',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Disable tombol dan tampilkan spinner
+                btn.disabled = true;
+                spinner.classList.remove('d-none');
+                btnText.textContent = ' Mengirim...';
+
+                // Tampilkan loading swal
+                Swal.fire({
+                    title: 'Mengirim...',
+                    text: 'Harap tunggu sementara sistem mengirimkan email.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                fetch(`/transaksi/${transaksiId}/sendByEmail`, {
+                        method: 'GET'
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error("Gagal mengirim email");
+                        return response.text();
+                    })
+                    .then(data => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Email berhasil dikirim.'
+                        });
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: error.message || 'Terjadi kesalahan saat mengirim email.'
+                        });
+                    })
+                    .finally(() => {
+                        // Aktifkan tombol kembali dan sembunyikan spinner
+                        btn.disabled = false;
+                        spinner.classList.add('d-none');
+                        btnText.textContent = ' Send Email';
+                    });
+            }
+        });
+    });
+</script>
