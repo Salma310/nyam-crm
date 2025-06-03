@@ -18,9 +18,9 @@ class HargaAgenSeeder extends Seeder
                 DB::table('m_harga_agen')->insert([
                     'agen_id' => $agenId,
                     'barang_id' => $barangId,
-                    'harga' => rand(8000, 15000),
-                    'diskon' => rand(2000, 5000),
-                    'diskon_persen' => rand(0, 10),
+                    'harga' => rand(9000, 15000),
+                    'diskon' => rand(0, 1000),
+                    'diskon_persen' => rand(0, 2),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

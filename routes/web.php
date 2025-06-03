@@ -69,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [TransaksiController::class, 'destroy']);
         // Route::get('/{id}/export_pdf', [TransaksiController::class, 'export_pdf']);
         Route::get('/{id}/print', [TransaksiController::class, 'printInvoice']); // PDF invoice
-
+        Route::get('/{id}/send', [TransaksiController::class, 'sendInvoiceToWablas']); // Send invoice
     });
 
      Route::group(['prefix' => 'purchase'], function () {
