@@ -76,8 +76,13 @@ class BarangController extends Controller
 
     public function show($id)
     {
-        $barang = Barang::findOrFail($id);
-        return view('stok_barang.show', ['barang' => $barang]);
+        $barang = Barang::with(['detailTransaksi.transaksi', 'detailTransaksiMasuk.purchase'])->findOrFail($id);
+
+        return view('stok_barang.show', [
+            'barang' => $barang,
+            'histori_keluar' => $barang->detailTransaksi,
+            'histori_masuk' => $barang->detailTransaksiMasuk
+        ]);
     }
 
     public function edit($id)

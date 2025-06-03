@@ -20,7 +20,7 @@ class DetailPurchase extends Model
     
     public function purchase()
     {
-        return $this->hasMany(DetailPurchase::class, 'transaksi_masuk_id', 'transaksi_masuk_id');
+        return $this->belongsTo(Purchase::class, 'transaksi_masuk_id', 'transaksi_masuk_id');
     }
 
     public function barang()
