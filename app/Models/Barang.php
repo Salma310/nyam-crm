@@ -20,6 +20,18 @@ class Barang extends Model
         'ukuran',
         'pic',
         'hpp',
-        'stok'  
+        'stok'
     ];
+
+    public function detailTransaksi()
+    {
+        return $this->hasMany(\App\Models\DetailTransaksi::class, 'barang_id', 'barang_id')
+            ->with('transaksi');
+    }
+
+    public function detailTransaksiMasuk()
+    {
+        return $this->hasMany(\App\Models\DetailPurchase::class, 'barang_id', 'barang_id')
+            ->with('Purchase');
+    }
 }
