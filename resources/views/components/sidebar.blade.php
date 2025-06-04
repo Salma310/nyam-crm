@@ -1,70 +1,49 @@
-<aside class="main-sidebar elevation-3">
+<aside class="main-sidebar custom-sidebar">
     <a href="#" class="brand-link text-center">
-        <img src="{{ asset('logo.png') }}" alt="Nyam Logo" style="width: 60px;">
+        <img src="{{ asset('logo.png') }}" alt="Nyam Logo" class="brand-image" style="width: 60px;">
+        <span class="brand-text">NYAM CRM</span>
     </a>
 
     <div class="sidebar">
         <nav class="mt-3">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-                {{-- MENU UTAMA --}}
-                <li class="nav-header collapsible-header" data-target="#menu-utama">MENU UTAMA</li>
-                <div id="menu-utama" class="collapsible-content">
-                    <li class="nav-item">
-                        <a href="{{ route('dashboard') }}"
-                            class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-tachometer-alt"></i>
-                            <p>Dashboard</p>
-                        </a>
-                    </li>
-                </div>
+                <li class="nav-header">Menu Utama</li>
+                <li class="nav-item">
+                    <a href="{{ route('dashboard') }}"
+                        class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-home"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
 
-                {{-- TRANSAKSI --}}
-                <li class="nav-header collapsible-header" data-target="#menu-transaksi">TRANSAKSI</li>
-                <div id="menu-transaksi" class="collapsible-content">
-                    <li class="nav-item">
-                        <a href="{{ url('/transaksi') }}"
-                            class="nav-link {{ request()->is('transaksi*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-shopping-cart"></i>
-                            <p>Transaksi Penjualan</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/purchase') }}"
-                            class="nav-link {{ request()->is('purchase*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-truck"></i>
-                            <p>Transaksi Pembelian</p>
-                        </a>
-                    </li>
-                </div>
+                <li class="nav-header">Transaksi</li>
+                <li class="nav-item">
+                    <a href="{{ url('/transaksi') }}"
+                        class="nav-link {{ request()->is('transaksi*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-shopping-cart"></i>
+                        <p>Penjualan</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/purchase') }}" class="nav-link {{ request()->is('purchase*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-truck-loading"></i>
+                        <p>Pembelian</p>
+                    </a>
+                </li>
 
-                {{-- MASTER DATA --}}
-                <li class="nav-header collapsible-header" data-target="#menu-master">MASTER DATA</li>
-                <div id="menu-master" class="collapsible-content">
-                    <li class="nav-item">
-                        <a href="{{ url('/barang') }}" class="nav-link {{ request()->is('barang*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-boxes"></i>
-                            <p>Produk / Stok</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/agen') }}" class="nav-link {{ request()->is('agen*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-user-friends"></i>
-                            <p>Data Agen</p>
-                        </a>
-                    </li>
-                </div>
-
-                {{-- LAINNYA --}}
-                <li class="nav-header collapsible-header" data-target="#menu-lainnya">LAINNYA</li>
-                <div id="menu-lainnya" class="collapsible-content">
-                    <li class="nav-item">
-                        <a href="{{ url('/laporan') }}"
-                            class="nav-link {{ request()->is('laporan*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-file-alt"></i>
-                            <p>Laporan</p>
-                        </a>
-                    </li>
-                </div>
+                <li class="nav-header">Master Data</li>
+                <li class="nav-item">
+                    <a href="{{ url('/barang') }}" class="nav-link {{ request()->is('barang*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-box-open"></i>
+                        <p>Produk / Stok</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/agen') }}" class="nav-link {{ request()->is('agen*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-users"></i>
+                        <p>Data Agen</p>
+                    </a>
+                </li>
             </ul>
         </nav>
     </div>

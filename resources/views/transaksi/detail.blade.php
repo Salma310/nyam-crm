@@ -24,21 +24,24 @@
                     <p><strong>Tanggal:</strong> {{ \Carbon\Carbon::parse($transaksi->tgl_transaksi)->format('d-m-Y') }}
                     </p>
                     <p><strong>Total Harga:</strong> Rp {{ number_format($totalHarga, 0, ',', '.') }}</p>
-                    <a href="{{ url('transaksi/' . $transaksi->transaksi_id . '/print') }}" target="_blank"
-                        class="btn btn-primary btn-sm" title="Cetak Invoice">
-                        <i class="fas fa-print"></i> Print
-                    </a>
-                    <a href="{{ url('transaksi/' . $transaksi->transaksi_id . '/send') }}" target="_blank"
-                        class="btn btn-primary btn-sm" title="Kirim Invoice">
-                        <i class="fas fa-wa"></i> Send WA
-                    </a>
-                    <button type="button" class="btn btn-primary btn-sm btn-send-email"
-                        data-id="{{ $transaksi->transaksi_id }}" title="Kirim Invoice">
-                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                        <i class="fas fa-envelope"></i>
-                        <span class="btn-text"> Send Email</span>
-                    </button>
+                    <div class="btn-group" role="group" aria-label="Invoice Actions">
+                        <a href="{{ url('transaksi/' . $transaksi->transaksi_id . '/print') }}" target="_blank"
+                            class="btn btn-outline-secondary btn-sm" title="Cetak Invoice">
+                            <i class="fas fa-print"></i> Print
+                        </a>
 
+                        <a href="{{ url('transaksi/' . $transaksi->transaksi_id . '/send') }}" target="_blank"
+                            class="btn btn-outline-success btn-sm" title="Kirim via WhatsApp">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+
+                        <button type="button" class="btn btn-outline-info btn-sm btn-send-email"
+                            data-id="{{ $transaksi->transaksi_id }}" title="Kirim via Email">
+                            <span class="spinner-border spinner-border-sm d-none" role="status"
+                                aria-hidden="true"></span>
+                            <i class="fas fa-envelope"></i> <span class="btn-text">Email</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -74,7 +77,8 @@
                                     $totalBeli = $hpp * $qty;
                                     $keuntungan = $item['harga_final'] - $totalBeli;
                                     $totalKeuntungan += $keuntungan;
-                                    $totalSemua = $totalHarga + $transaksi->pajak_transaksi;
+                                    $totalSemua =
+                                        $totalHarga + $transaksi->pajak_transaksi - $transaksi->diskon_transaksi;
                                 @endphp
                                 <tr>
                                     <td>{{ $detail->barang->kode_barang ?? '-' }}</td>
