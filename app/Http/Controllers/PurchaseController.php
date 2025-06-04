@@ -42,7 +42,7 @@ class PurchaseController extends Controller
 
     public function list(Request $request)
     {
-        $purchase = Purchase::with(['detailPurchase', 'detailPurchase.barang']);
+        $purchase = Purchase::with(['detailPurchase', 'detailPurchase.barang'])->orderByDesc('tgl_transaksi');;
 
         return DataTables::of($purchase)
             ->addIndexColumn()
@@ -91,7 +91,7 @@ class PurchaseController extends Controller
             }
         }
 
-        return view('purchase.detail', compact('purchase','detailHarga'));
+        return view('purchase.detail', compact('purchase', 'detailHarga'));
     }
 
     public function create()
@@ -177,7 +177,6 @@ class PurchaseController extends Controller
                     'status' => true,
                     'message' => 'Transaksi berhasil disimpan',
                 ]);
-
             } catch (\Exception $e) {
                 DB::rollBack();
                 return response()->json([

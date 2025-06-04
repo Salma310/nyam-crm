@@ -14,66 +14,61 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <style>
-        /* Sidebar Background & Brand Area */
+        .custom-sidebar {
+            background-color: #2159d2;
+            /* dark gray */
+            color: #e5e7eb;
+            /* light gray text */
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+        }
+        
         .brand-link {
-            background-color: #f89f24;
+            background-color: #2b62da;
             color: #fff;
-            font-weight: bold;
-            font-size: 18px;
-            padding: 10px 0;
+            font-size: 20px;
+            font-weight: 600;
+            padding: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .brand-image {
+            margin-bottom: 5px;
+            border-radius: 8px;
         }
 
         .nav-header {
-            font-size: 13px;
+            color: #9ca3af;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 12px 15px 5px;
             text-transform: uppercase;
-            font-weight: bold;
-            color: #ffffff;
-            letter-spacing: 1px;
-            padding: 10px 15px 5px;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            background-color: rgba(255, 255, 255, 0.05);
+            letter-spacing: 0.05em;
         }
 
-        .nav-header::before {
-            content: "\f0da";
-            /* FontAwesome arrow */
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-            margin-right: 5px;
-        }
-
-
-        .main-sidebar {
-            background-color: #f89f24 !important;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        /* Default Menu Link */
         .nav-sidebar .nav-link {
             color: #fff;
             transition: background-color 0.2s ease-in-out;
         }
 
-        /* Hover Effect */
         .nav-sidebar .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.341);
-            color: #fff;
+            color: #fff !important; /* Pastikan teks tetap putih */
         }
 
-        /* Active Menu */
         .nav-sidebar .nav-link.active {
-            background-color: #1e40af;
-            /* Deep Blue */
+            background: linear-gradient(to right, #ffbc51, #ffc107);;
             color: #fff;
             font-weight: 600;
         }
 
-        /* Nav Icon */
         .nav-sidebar .nav-icon {
             color: #fff;
         }
 
-        /* Sidebar collapse: center icon & hide text */
         .sidebar-mini.sidebar-collapse .main-sidebar .nav-link p {
             display: none;
         }
@@ -93,6 +88,7 @@
 
         .collapsible-header:hover {
             background-color: rgba(255, 255, 255, 0.2);
+            color: #fff !important; /* Pastikan teks tetap putih */
         }
 
         .collapsible-content {
@@ -102,6 +98,10 @@
 
         .collapsible-content.hidden {
             display: none;
+        }
+
+        .btn-group .btn {
+            margin-right: 5px;
         }
     </style>
 </head>

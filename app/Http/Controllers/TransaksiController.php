@@ -13,6 +13,7 @@ use App\Models\Barang;
 use App\Models\DetailTransaksi;
 use App\Models\HargaAgen;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
+use Illuminate\Support\Facades\DB;
 use App\Mail\InvoiceMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -50,7 +51,8 @@ class TransaksiController extends Controller
 
     public function list(Request $request)
     {
-        $transaksi = Transaksi::with(['agen', 'detailTransaksi']);
+        $transaksi = Transaksi::with(['agen', 'detailTransaksi'])
+            ->orderByDesc('tgl_transaksi'); // <-- urutkan dari yang terbaru
 
         return DataTables::of($transaksi)
             ->addIndexColumn()
@@ -68,6 +70,108 @@ class TransaksiController extends Controller
             })
             ->rawColumns(['aksi'])
             ->make(true);
+    }
+
+    public function create()
+    {
+        $barang = Barang::select('barang_id', 'kode_barang', 'nama_barang', 'hpp', 'stok')->get();
+        $agen = Agen::all();
+
+        foreach ($barang as $b) {
+            $kode = str_pad($b->kode_barang, 10);
+            $nama = str_pad($b->nama_barang, 25);
+            $hpp = str_pad('Rp' . number_format($b->hpp, 0, ',', '.'), 12, ' ', STR_PAD_LEFT);
+            $stok = str_pad('Stok: ' . $b->stok, 10, ' ', STR_PAD_LEFT);
+            $b->label = $kode . $nama . $hpp . $stok;
+        }
+
+        return view('transaksi.create', compact('barang', 'agen'));
+    }
+
+    public function store(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'agen_id' => 'required|exists:m_agen,agen_id',
+                'diskon_transaksi' => 'nullable|numeric|min:0',
+                'pajak_transaksi' => 'nullable|numeric|min:0',
+                'barang' => 'required|array|min:1',
+                'barang.*.barang_id' => 'required|integer|exists:m_barang,barang_id',
+                'barang.*.qty' => 'required|integer|min:1',
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors(),
+                ]);
+            }
+
+            DB::beginTransaction();
+
+            try {
+                $last = Transaksi::latest('transaksi_id')->first();
+                $nextId = $last ? $last->transaksi_id + 1 : 1;
+                $kode = 'TRX' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+
+                $diskon = $request->diskon_transaksi ?? 0;
+                $pajak = $request->pajak_transaksi ?? 0;
+                $totalHarga = 0;
+
+                foreach ($request->barang as $item) {
+                    $hargaAgen = HargaAgen::where('agen_id', $request->agen_id)
+                        ->where('barang_id', $item['barang_id'])
+                        ->first();
+                    $harga = $hargaAgen ? $hargaAgen->harga : Barang::find($item['barang_id'])->hpp;
+                    $totalHarga += $harga * $item['qty'];
+                }
+
+                $hargaAkhir = $totalHarga - $diskon + $pajak;
+
+                $transaksi = Transaksi::create([
+                    'kode_transaksi' => $kode,
+                    'agen_id' => $request->agen_id,
+                    'diskon_transaksi' => $diskon,
+                    'pajak_transaksi' => $pajak,
+                    'harga_total' => $hargaAkhir,
+                    'tgl_transaksi' => now(),
+                ]);
+
+                foreach ($request->barang as $item) {
+                    $hargaAgen = HargaAgen::where('agen_id', $request->agen_id)
+                        ->where('barang_id', $item['barang_id'])
+                        ->first();
+
+                    DetailTransaksi::create([
+                        'transaksi_id' => $transaksi->transaksi_id,
+                        'barang_id' => $item['barang_id'],
+                        'qty' => $item['qty'],
+                        'harga_agen_id' => optional($hargaAgen)->harga_agen_id,
+                    ]);
+
+                    $barang = Barang::findOrFail($item['barang_id']);
+                    $barang->stok -= $item['qty'];
+                    $barang->save();
+                }
+
+                DB::commit();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Transaksi berhasil disimpan',
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Gagal: ' . $e->getMessage(),
+                ]);
+            }
+        }
+        return redirect('/');
     }
 
     public function show($id)
@@ -294,101 +398,4 @@ class TransaksiController extends Controller
         echo "<pre>";
         print_r($result);
     }
-
-    public function create()
-    {
-        $agen = Agen::all();
-        $barang = Barang::all();
-
-        return view('transaksi.create', compact('agen', 'barang'));
-
-        // $jenisEvent = Agen::select('jenis_event_id', 'jenis_event_name')->get();
-        // $user = Barang::select('user_id', 'name')->where('role_id', 3)->get();
-        // $jabatan = Position::select('jabatan_id', 'jabatan_name')->get();
-        // return view('admin.event.create_ajax')
-        //     ->with('jenisEvent', $jenisEvent)
-        //     ->with('user', $user)
-        //     ->with('jabatan', $jabatan);
-    }
-
-    // public function store(Request $request)
-    // {
-    //     // Cek apakah request berupa ajax atau ingin JSON
-    //     if ($request->ajax() || $request->wantsJson()) {
-    //         // Aturan validasi
-    //         $rules = [
-    //             'event_name' => 'required|string|max:100',
-    //             'event_code' => 'required|string|max:10|unique:m_event,event_code',
-    //             'event_description' => 'required|string',
-    //             'start_date' => 'required|date',
-    //             'end_date' => 'required|date|after_or_equal:start_date',
-    //             'jenis_event_id' => 'required|integer',
-    //             'point' => 'required|numeric|min:0',
-
-    //             // Validasi untuk array user_id dan jabatan_id
-    //             'participant' => 'required|array|min:1',
-    //             'participant.*.user_id' => 'required|integer|exists:m_user,user_id',
-    //             'participant.*.jabatan_id' => 'required|integer|exists:m_jabatan,jabatan_id',
-    //         ];
-
-    //         // Gunakan Validator untuk memvalidasi data
-    //         $validator = Validator::make($request->all(), $rules);
-
-    //         // Jika validasi gagal
-    //         if ($validator->fails()) {
-    //             return response()->json([
-    //                 'status' => false,
-    //                 'message' => 'Validasi Gagal',
-    //                 'msgField' => $validator->errors(),
-    //             ]);
-    //         }
-
-    //         try {
-    //             // Simpan data event
-    //             $event = Event::create([
-    //                 'event_name' => $request->input('event_name'),
-    //                 'event_code' => $request->input('event_code'),
-    //                 'event_description' => $request->input('event_description'),
-    //                 'start_date' => $request->input('start_date'),
-    //                 'end_date' => $request->input('end_date'),
-    //                 'jenis_event_id' => $request->input('jenis_event_id'),
-    //                 'status' => 'not started', // Tambahkan status default
-    //                 'point' => $request->input('point'),
-    //             ]);
-
-    //             // Simpan data ke event_participants untuk setiap kombinasi user_id dan jabatan_id
-
-    //             foreach ($request->participant as $participants) {
-    //                 EventParticipant::create([
-    //                     'event_id' => $event->event_id, // Ambil ID dari event yang baru disimpan
-    //                     'user_id' => $participants['user_id'],
-    //                     'jabatan_id' => $participants['jabatan_id']
-    //                 ]);
-    //             }
-
-    //             $eventParticipants = EventParticipant::where('event_id', $event->event_id)->get();
-    //             $users  = User::whereIn('user_id', $eventParticipants->pluck('user_id'))->get();
-    //             Notification::send($users, new EventNotification($event));
-
-    //             $pimpinan = User::where('role_id', 2)->get();
-    //             Notification::send($pimpinan, new PimpinanNotification($event));
-
-    //             // Jika berhasil
-    //             return response()->json([
-    //                 'status' => true,
-    //                 'message' => 'Data event berhasil disimpan',
-    //             ]);
-    //         } catch (\Exception $e) {
-    //             // Jika terjadi kesalahan pada proses simpan
-    //             return response()->json([
-    //                 'status' => false,
-    //                 'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
-    //             ]);
-    //         }
-    //     }
-
-    //     // Redirect jika bukan request Ajax
-    //     return redirect('/');
-    // }
-
 }

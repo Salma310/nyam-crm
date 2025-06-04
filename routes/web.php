@@ -73,14 +73,22 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/sendByEmail', [TransaksiController::class, 'sendInvoiceByEmail']); // Send invoice
     });
 
-     Route::group(['prefix' => 'purchase'], function () {
-        Route::get('/', [PurchaseController::class, 'index']);             
-        Route::post('/list', [PurchaseController::class, 'list']);          
-        Route::get('/create', [PurchaseController::class, 'create']);     
+    Route::get('/harga-agen/{agen_id}/{barang_id}', function ($agen_id, $barang_id) {
+        $harga = \App\Models\HargaAgen::where('agen_id', $agen_id)
+            ->where('barang_id', $barang_id)
+            ->first();
+
+        return response()->json(['harga' => $harga?->harga ?? null]);
+    });
+
+    Route::group(['prefix' => 'purchase'], function () {
+        Route::get('/', [PurchaseController::class, 'index']);
+        Route::post('/list', [PurchaseController::class, 'list']);
+        Route::get('/create', [PurchaseController::class, 'create']);
         Route::post('/add', [PurchaseController::class, 'store']);
-        Route::get('/{id}/show', [PurchaseController::class, 'show']);  
-        Route::get('/{id}/edit', [PurchaseController::class, 'edit']);       
-        Route::put('/{id}/update', [BarangController::class, 'update']);       
+        Route::get('/{id}/show', [PurchaseController::class, 'show']);
+        Route::get('/{id}/edit', [PurchaseController::class, 'edit']);
+        Route::put('/{id}/update', [BarangController::class, 'update']);
         Route::get('/{id}/delete', [PurchaseController::class, 'confirm']);
         Route::delete('/{id}/delete', [PurchaseController::class, 'delete']);
         Route::get('/{id}/print', [PurchaseController::class, 'printInvoice']);

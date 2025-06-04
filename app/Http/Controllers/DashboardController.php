@@ -2,54 +2,103 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agen;
+use App\Models\Barang;
+use App\Models\Transaksi;
+use App\Models\DetailTransaksi;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Transaksi per bulan (langkah 1 tetap)
-        $transaksiPerBulan = DB::table('t_transaksi')
-            ->selectRaw('MONTH(tgl_transaksi) as bulan, COUNT(*) as total')
-            ->groupByRaw('MONTH(tgl_transaksi)')
-            ->orderByRaw('bulan')
+        // Total revenue (total harga dari semua transaksi)
+        $totalRevenue = Transaksi::sum('harga_total');
+
+        // Total produk terjual (dari tabel detail transaksi)
+        $totalProductsSold = DetailTransaksi::sum('qty');
+
+        // Total produk
+        $totalProducts = Barang::count();
+
+        // Total agen
+        $totalAgents = Agen::count();
+
+        // Transaksi per bulan (12 bulan terakhir)
+        $transaksiPerBulan = Transaksi::select(
+            DB::raw("DATE_FORMAT(tgl_transaksi, '%Y-%m') as bulan"),
+            DB::raw("COUNT(*) as total")
+        )
+            ->where('tgl_transaksi', '>=', Carbon::now()->subMonths(11)->startOfMonth())
+            ->groupBy('bulan')
+            ->orderBy('bulan')
             ->get();
 
-        $labels = [];
-        $data = [];
-        foreach ($transaksiPerBulan as $row) {
-            $labels[] = Carbon::create()->month($row->bulan)->locale('id')->isoFormat('MMMM');
-            $data[] = $row->total;
-        }
+        // Format label dan data untuk chart
+        $bulanLabels = collect(range(0, 11))->map(function ($i) {
+            return Carbon::now()->subMonths(11 - $i)->format('M Y');
+        });
 
-        // Agen tidak aktif > 30 hari
-        $inactiveAgents = DB::table('m_agen')
-            ->leftJoin('t_transaksi', 'm_agen.agen_id', '=', 't_transaksi.agen_id')
-            ->select('m_agen.nama', 'm_agen.email', DB::raw('MAX(t_transaksi.tgl_transaksi) as terakhir_transaksi'))
-            ->groupBy('m_agen.agen_id', 'm_agen.nama', 'm_agen.email')
-            ->havingRaw('terakhir_transaksi IS NULL OR DATEDIFF(CURDATE(), terakhir_transaksi) > 30')
-            ->get();
+        $dataChart = $bulanLabels->map(function ($label) use ($transaksiPerBulan) {
+            $match = $transaksiPerBulan->firstWhere('bulan', Carbon::createFromFormat('M Y', $label)->format('Y-m'));
+            return $match ? $match->total : 0;
+        });
 
-        // Top barang paling banyak terjual
-        $topBarang = DB::table('t_detail_transaksi')
-            ->join('m_barang', 't_detail_transaksi.barang_id', '=', 'm_barang.barang_id')
-            ->select('m_barang.nama_barang', DB::raw('SUM(t_detail_transaksi.qty) as total_terjual'))
-            ->groupBy('m_barang.barang_id', 'm_barang.nama_barang')
+        // Barang terlaris (top 5)
+        $topBarang = DetailTransaksi::select('barang_id', DB::raw('SUM(qty) as total_terjual'))
+            ->groupBy('barang_id')
             ->orderByDesc('total_terjual')
-            ->limit(5)
-            ->get();
+            ->take(5)
+            ->with('barang:barang_id,nama_barang')
+            ->get()
+            ->map(function ($item) {
+                return (object) [
+                    'nama_barang' => $item->barang->nama_barang ?? '-',
+                    'total_terjual' => $item->total_terjual
+                ];
+            });
 
-        // Top agen
-        $topAgen = DB::table('t_transaksi')
-            ->join('m_agen', 't_transaksi.agen_id', '=', 'm_agen.agen_id')
-            ->select('m_agen.nama', DB::raw('COUNT(*) as total_transaksi'))
-            ->groupBy('m_agen.agen_id', 'm_agen.nama')
+        // Agen teraktif (top 5)
+        $topAgen = Transaksi::select('agen_id', DB::raw('COUNT(*) as total_transaksi'))
+            ->groupBy('agen_id')
             ->orderByDesc('total_transaksi')
-            ->limit(5)
-            ->get();
+            ->take(5)
+            ->with('agen:agen_id,nama')
+            ->get()
+            ->map(function ($item) {
+                return (object) [
+                    'nama' => $item->agen->nama ?? '-',
+                    'total_transaksi' => $item->total_transaksi
+                ];
+            });
 
-        return view('dashboard', compact('labels', 'data', 'inactiveAgents', 'topBarang', 'topAgen'));
+        // Agen tidak aktif 30 hari terakhir
+        $inactiveAgents = Agen::whereDoesntHave('transaksi', function ($query) {
+            $query->where('tgl_transaksi', '>=', now()->subDays(30));
+        })
+            ->with(['transaksi' => function ($q) {
+                $q->latest('tgl_transaksi')->limit(1);
+            }])
+            ->get()
+            ->map(function ($agen) {
+                return (object) [
+                    'nama' => $agen->nama,
+                    'terakhir_transaksi' => optional($agen->transaksi->first())->tgl_transaksi
+                ];
+            });
+
+        return view('dashboard', [
+            'totalRevenue' => $totalRevenue,
+            'totalProductsSold' => $totalProductsSold,
+            'totalProducts' => $totalProducts,
+            'totalAgents' => $totalAgents,
+            'labels' => $bulanLabels,
+            'data' => $dataChart,
+            'topBarang' => $topBarang,
+            'topAgen' => $topAgen,
+            'inactiveAgents' => $inactiveAgents
+        ]);
     }
 }

@@ -23,11 +23,11 @@ class BarangController extends Controller
             ->addIndexColumn()
             ->addColumn('aksi', function ($barang) {
                 $btn  = '<button onclick="modalAction(\'' . url('/barang/' . $barang->barang_id .
-                    '/show') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                    '/show') . '\')" class="btn btn-primary"><i class="fas fa-qrcode"></i> Detail</button> ';
                 $btn .= '<button onclick="modalAction(\'' . url('/barang/' . $barang->barang_id .
-                    '/edit') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                    '/edit') . '\')" class="btn btn-info"><i class="fas fa-edit"></i> Edit</button> ';
                 $btn .= '<button onclick="modalAction(\'' . url('/barang/' . $barang->barang_id .
-                    '/delete') . '\')"  class="btn btn-danger btn-sm">Hapus</button> ';
+                    '/delete') . '\')" class="btn btn-danger"><i class="fas fa-trash"></i> Hapus</button> ';
                 return $btn;
             })
             ->rawColumns(['aksi']) // memberitahu bahwa kolom aksi adalah html
@@ -86,12 +86,25 @@ class BarangController extends Controller
 
     public function show($id)
     {
-        $barang = Barang::with(['detailTransaksi.transaksi', 'detailTransaksiMasuk.purchase'])->findOrFail($id);
+        $barang = Barang::with([
+            'detailTransaksi.transaksi',
+            'detailTransaksiMasuk.purchase'
+        ])->findOrFail($id);
+
+        // Urutkan histori keluar berdasarkan tgl_transaksi (dari relasi transaksi)
+        $histori_keluar = $barang->detailTransaksi->sortByDesc(function ($item) {
+            return $item->transaksi->tgl_transaksi ?? $item->created_at;
+        });
+
+        // Urutkan histori masuk berdasarkan tgl_transaksi (dari relasi purchase)
+        $histori_masuk = $barang->detailTransaksiMasuk->sortByDesc(function ($item) {
+            return $item->purchase->tgl_transaksi ?? $item->created_at;
+        });
 
         return view('stok_barang.show', [
             'barang' => $barang,
-            'histori_keluar' => $barang->detailTransaksi,
-            'histori_masuk' => $barang->detailTransaksiMasuk
+            'histori_keluar' => $histori_keluar,
+            'histori_masuk' => $histori_masuk
         ]);
     }
 

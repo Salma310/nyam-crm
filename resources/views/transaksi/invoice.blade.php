@@ -124,7 +124,7 @@
         </tbody>
 
         @php
-            $diskonTransaksi = $transaksi->diskon ?? 0;
+            $diskonTransaksi = $transaksi->diskon_transaksi ?? 0;
             $pajak = $transaksi->pajak_transaksi ?? 0;
             $Gtotal = $subtotal - $diskonTransaksi + $pajak;
         @endphp
