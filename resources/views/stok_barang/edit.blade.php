@@ -76,7 +76,7 @@
                     </div>
                     <div class="form-group">
                         <label>Stok</label>
-                        <input value="{{ $barang->stok }}" type="number" name="stok" id="stok" class="form-control"
+                        <input value="{{ $barang->stok }}" type="number" name="stok" id="stok" class="form-control" readonly
                             required>
                         <small id="error-stok" class="error-text form-text text-danger"></small>
                     </div>

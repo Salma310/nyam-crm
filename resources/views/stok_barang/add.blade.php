@@ -66,7 +66,7 @@
                         'kandungan' => 'Kandungan',
                         'ukuran' => 'Ukuran',
                         'pic' => 'PIC',
-                        'stok' => 'Stok',
+                        // 'stok' => 'Stok',
                         'hpp' => 'HPP',
                     ];
 
@@ -78,7 +78,7 @@
                         'kandungan' => 'Contoh: Vitamin C, Serat',
                         'ukuran' => 'Contoh: 100gr',
                         'pic' => 'Unggah gambar produk (jpg/jpeg/png)',
-                        'stok' => 'Contoh: 120',
+                        // 'stok' => 'Contoh: 120',
                         'hpp' => 'Contoh: 7500.00',
                     ];
                 @endphp
@@ -91,6 +91,7 @@
                             name="{{ $field }}" id="{{ $field }}" class="form-control"
                             placeholder="{{ $field !== 'pic' ? $placeholders[$field] : '' }}"
                             {{ $field === 'pic' ? '' : 'required' }}>
+                            {{-- {{ $field === 'stok' ? 'readonly' : '' }} --}}
                         <small class="form-text text-muted">{{ $placeholders[$field] }}</small>
                         <small id="error-{{ $field }}" class="error-text form-text text-danger"></small>
                     </div>
@@ -139,7 +140,7 @@
                     required: true
                 },
                 stok: {
-                    required: true,
+                    required: false,
                     digits: true
                 },
                 hpp: {

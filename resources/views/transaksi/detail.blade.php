@@ -11,11 +11,11 @@
                 <div>
                     <h4><strong>Data Agen</strong></h4>
                     <p><strong>Nama:</strong> {{ $transaksi->agen->nama ?? '-' }}</p>
-                    <p><strong>Alamat:</strong> {{ $transaksi->agen->alamat ?? '-' }}</p>
-                    <p><strong>Kecamatan:</strong> {{ $transaksi->agen->kecamatan ?? '-' }}</p>
+                    <p><strong>Alamat:</strong> {{ $transaksi->agen->alamat ?? '-' }}, {{ $transaksi->agen->kecamatan ?? '-' }}</p>
                     <p><strong>Kota:</strong> {{ $transaksi->agen->kota ?? '-' }}</p>
                     <p><strong>Provinsi:</strong> {{ $transaksi->agen->provinsi ?? '-' }}</p>
                     <p><strong>No. Telp:</strong> {{ $transaksi->agen->no_telf ?? '-' }}</p>
+                    <p><strong>Email:</strong> {{ $transaksi->agen->email ?? '-' }}</p>
                 </div>
 
                 {{-- Kanan --}}

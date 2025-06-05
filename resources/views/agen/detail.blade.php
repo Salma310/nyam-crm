@@ -56,20 +56,27 @@
                     <thead>
                         <tr>
                             <th>Nama Barang</th>
+                            <th>HPP</th>
                             <th>Harga</th>
                             <th>Diskon</th>
                             <th>Diskon (%)</th>
-                            {{-- <t>Pajak</t/h> --}}
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                      <tbody>
                         @forelse ($harga_produk as $harga)
-                            <tr>
-                                <td>{{ $harga->barang->nama_barang ?? '-' }}</td>
-                                {{-- <form action="{{ route('harga-agen.update', $harga->id) }}" method="POST"> --}}
-                                <form action="{{ url('agen/' . $harga->id . '/update_harga') }}" method="POST">
-                                    @csrf
-                                    @method('PUT')
+                         {{-- @if ($harga->id) --}}
+                            {{-- <form action="{{ url('agen/' . $harga->id . '/update_harga') }}" method="POST"> --}}
+                            <form action="{{ url('agen/' . ($harga->id ?? 0) . '/update_harga') }}" method="POST">
+                            {{-- <form action="{{ route('harga-agen.update', $harga->id) }}" method="POST"> --}}
+                                @csrf
+                                @method('PUT')
+                                <tr>
+                                    <td>{{ $harga->barang->nama_barang ?? '-' }}</td>
+                                    {{-- <form action="{{ route('harga-agen.update', $harga->id) }}" method="POST"> --}}                                
+                                    <td>
+                                        <input type="number" name="hpp" class="form-control form-control-sm" value="{{ $harga->barang->hpp }}" readonly>
+                                    </td>
                                     <td>
                                         <input type="number" name="harga" class="form-control form-control-sm" value="{{ $harga->harga }}" required>
                                     </td>
@@ -84,59 +91,74 @@
                                             <i class="fas fa-save"></i> Simpan
                                         </button>
                                     </td>
-                                </form>
-                            </tr>
+                                </tr>
+                            </form>
                         @empty
                             <tr>
                                 <td colspan="5" class="text-center">Tidak ada data harga produk</td>
                             </tr>
                         @endforelse
                     </tbody>
-                    {{-- <tbody>
-                        @forelse ($harga_produk as $harga)
-                            <tr>
-                                <td>{{ $harga->barang->nama_barang ?? '-' }}</td>
-                                <td>Rp {{ number_format($harga->harga, 0, ',', '.') }}</td>
-                                <td>Rp {{ number_format($harga->diskon, 0, ',', '.') }}</td>
-                                <td>{{ $harga->diskon_persen }}%</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="text-center">Tidak ada data harga produk</td>
-                            </tr>
-                        @endforelse
-                    </tbody> --}}
                 </table>
 
                 <hr>
                 {{-- Riwayat Transaksi --}}
                 <h5>Riwayat Transaksi Agen</h5>
-                <table class="table table-sm table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>Kode Transaksi</th>
-                            <th>Diskon Transaksi</th>
-                            <th>Pajak</th>
-                            <th>Harga Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($transaksi as $trx)
+                    <table class="table table-bordered table-hover">
+                        <thead>
                             <tr>
-                                <td>{{ \Carbon\Carbon::parse($trx->tgl_transaksi)->format('d-m-Y') }}</td>
-                                <td>{{ $trx->kode_transaksi }}</td>
-                                <td>Rp {{ number_format($trx->diskon_transaksi, 0, ',', '.') }}</td>
-                                <td>{{ $trx->pajak_transaksi }}%</td>
-                                <td>Rp {{ number_format($trx->harga_total, 0, ',', '.') }}</td>
+                                <th>Tanggal</th>
+                                <th>Kode Transaksi</th>
+                                <th>Diskon Transaksi</th>
+                                <th>Pajak</th>
+                                <th>Harga Total</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="text-center">Tidak ada data transaksi</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @forelse ($transaksi as $trx)
+                                <tr data-widget="expandable-table" aria-expanded="false">
+                                    <td>{{ \Carbon\Carbon::parse($trx->tgl_transaksi)->format('d-m-Y') }}</td>
+                                    <td>{{ $trx->kode_transaksi }}</td>
+                                    <td>Rp {{ number_format($trx->diskon_transaksi, 0, ',', '.') }}</td>
+                                    <td>{{ $trx->pajak_transaksi }}%</td>
+                                    <td>Rp {{ number_format($trx->harga_total, 0, ',', '.') }}</td>
+                                </tr>
+                                <tr class="expandable-body d-none">
+                                    <td colspan="5">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nama Barang</th>
+                                                    <th>Qty</th>
+                                                    <th>Harga</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($trx->detailTransaksi as $detail)
+                                                    <tr>
+                                                        <td>{{ $detail->barang->nama_barang }}</td>
+                                                        <td>{{ $detail->qty }}</td>
+                                                        @php
+                                                            $hargaAgen = $harga_produk->firstWhere('barang_id', $detail->barang_id);
+                                                        @endphp
+                                                        <td>
+                                                            @if($hargaAgen)
+                                                                Rp {{ number_format($hargaAgen->harga, 0, ',', '.') }}
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center">Tidak ada data transaksi</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
             </div>
 
             <div class="modal-footer">
@@ -144,6 +166,18 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('[data-widget="expandable-table"]').forEach(function(row) {
+            row.addEventListener('click', function() {
+                const next = row.nextElementSibling;
+                if (next && next.classList.contains('expandable-body')) {
+                    next.classList.toggle('d-none');
+                }
+            });
+        });
+    </script>
+
 @endempty
 
 {{-- @empty($agen)

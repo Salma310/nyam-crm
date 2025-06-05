@@ -6,6 +6,9 @@ use App\Models\Barang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
+use App\Models\Agen;
+use App\Models\HargaAgen;
 
 class BarangController extends Controller
 {
@@ -50,7 +53,7 @@ class BarangController extends Controller
                 'kandungan' => 'required',
                 'ukuran' => 'required',
                 'pic' => 'required|image|mimes:jpg,jpeg,png|max:2048',
-                'stok' => 'required|integer',
+                'stok' => 'nullable|integer',
                 'hpp' => 'required|numeric',
             ];
 
@@ -72,15 +75,39 @@ class BarangController extends Controller
                 $file->move(public_path('uploads/barang'), $filename);
                 $data['pic'] = $filename;
             }
+            
+            DB::beginTransaction();
 
-            Barang::create($data);
+            try {
+                $barang = Barang::create($data);
+                $agens = Agen::all();
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Data barang berhasil disimpan'
-            ]);
+                foreach ($agens as $agen) {
+                    HargaAgen::create([
+                        'agen_id' => $agen->agen_id,
+                        'barang_id' => $barang->barang_id,
+                        'harga' => 0,
+                        'diskon' => 0,
+                        'diskon_persen' => 0,
+                    ]);
+                }
+                DB::commit();
+
+                 return response()->json([
+                    'status' => true,
+                    'message' => 'Data barang berhasil disimpan'
+                ]);
+
+            }  catch (\Exception $e) {
+                DB::rollBack();
+
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data barang tidak berhasil disimpan',
+                    'error' => $e->getMessage(), // Bisa dihapus jika tak ingin tampilkan error ke client
+                ]);
+            }
         }
-
         return redirect('/');
     }
 

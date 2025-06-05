@@ -23,7 +23,7 @@ class Agen extends Model
 
     public function transaksi()
     {
-        return $this->hasMany(Transaksi::class, 'transaksi_id', 'agen_id');
+        return $this->hasMany(Transaksi::class, 'agen_id', 'agen_id');
     }
     public function hargaAgen()
     {

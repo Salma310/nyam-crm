@@ -34,7 +34,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/add', [AgenController::class, 'store']);
         Route::get('/{id}/edit', [AgenController::class, 'edit']);
         Route::put('/{id}/update', [AgenController::class, 'update']);
-        Route::put('/{id}/update_harga', [AgenController::class, 'update_harga']);
+        // Route::put('/{id}/update_harga', [AgenController::class, 'update_harga']);
+        Route::put('/{id}/update_harga', [AgenController::class, 'update_harga'])->name('harga-agen.update');
         Route::get('/{id}/show', [AgenController::class, 'show']);
         Route::get('/{id}/delete', [AgenController::class, 'confirm']);
         Route::delete('/{id}/delete', [AgenController::class, 'delete']);

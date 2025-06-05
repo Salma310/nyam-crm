@@ -9,6 +9,9 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Agen;
 use App\Models\HargaAgen;
+use App\Models\Barang;
+use Illuminate\Support\Facades\DB;
+
 
 class AgenController extends Controller
 {
@@ -77,11 +80,40 @@ class AgenController extends Controller
                 ]);
             }
 
-            Agen::create($request->all());
-            return response()->json([
-                'status' => true,
-                'message' => 'Data agen berhasil disimpan'
-            ]);
+            DB::beginTransaction();
+            try {
+                // Simpan data agen
+                $agen = Agen::create($request->all());
+
+                // Ambil semua data barang
+                $barangs = Barang::all();
+
+                // Simpan harga agen default untuk setiap barang
+                foreach ($barangs as $barang) {
+                    HargaAgen::create([
+                        'agen_id' => $agen->agen_id,
+                        'barang_id' => $barang->barang_id,
+                        'harga' => 0,
+                        'diskon' => 0,
+                        'diskon_persen' => 0,
+                    ]);
+                }
+
+                DB::commit();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data agen dan harga agen berhasil disimpan',
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data agen tidak berhasil disimpan',
+                    // 'error' => $e->getMessage(), // Bisa dihapus jika tak ingin tampilkan error ke client
+                ]);
+            }
         }
         return redirect('/');
     }
@@ -96,6 +128,9 @@ class AgenController extends Controller
     {
         // Ambil data agen dengan relasi hargaAgen dan transaksi + detail transaksi + barang
         $agen = Agen::with([
+            // 'hargaAgen' => function ($q) {
+            //     $q->whereNotNull('id'); // pastikan hanya data valid
+            // },
             'hargaAgen.barang',
             'transaksi.detailTransaksi.barang'
         ])->findOrFail($id);
@@ -109,15 +144,6 @@ class AgenController extends Controller
             'harga_produk' => $agen->hargaAgen,
             'transaksi' => $agen->transaksi,
         ]);
-
-        // return response()->json([
-        //     'status' => true,
-        //     'data' => [
-        //         'agen' => $agen,
-        //         'harga_produk' => $agen->hargaAgen, // harga khusus agen
-        //         'transaksi' => $agen->transaksi     // semua transaksi agen beserta detail
-        //     ]
-        // ]);
     }
 
     public function update_harga(Request $request, $id)
@@ -132,11 +158,6 @@ class AgenController extends Controller
         $hargaAgen->harga = $request->harga;
         $hargaAgen->diskon = $request->diskon;
         $hargaAgen->diskon_persen = $request->diskon_persen;
-
-        // Hitung diskon persen otomatis jika diperlukan
-        // if ($hargaAgen->harga > 0) {
-        //     $hargaAgen->diskon_persen = ($request->diskon / $request->harga) * 100;
-        // }
 
         $hargaAgen->save();
 
