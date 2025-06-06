@@ -26,6 +26,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/wablas-status', [DashboardController::class, 'getWablasStatus']);
 
     Route::group(['prefix' => 'agen'], function () {
         Route::get('/', [AgenController::class, 'index']);

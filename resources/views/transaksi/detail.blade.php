@@ -11,7 +11,8 @@
                 <div>
                     <h4><strong>Data Agen</strong></h4>
                     <p><strong>Nama:</strong> {{ $transaksi->agen->nama ?? '-' }}</p>
-                    <p><strong>Alamat:</strong> {{ $transaksi->agen->alamat ?? '-' }}, {{ $transaksi->agen->kecamatan ?? '-' }}</p>
+                    <p><strong>Alamat:</strong> {{ $transaksi->agen->alamat ?? '-' }},
+                        {{ $transaksi->agen->kecamatan ?? '-' }}</p>
                     <p><strong>Kota:</strong> {{ $transaksi->agen->kota ?? '-' }}</p>
                     <p><strong>Provinsi:</strong> {{ $transaksi->agen->provinsi ?? '-' }}</p>
                     <p><strong>No. Telp:</strong> {{ $transaksi->agen->no_telf ?? '-' }}</p>
@@ -30,10 +31,12 @@
                             <i class="fas fa-print"></i> Print
                         </a>
 
-                        <a href="{{ url('transaksi/' . $transaksi->transaksi_id . '/send') }}" target="_blank"
-                            class="btn btn-outline-success btn-sm" title="Kirim via WhatsApp">
-                            <i class="fab fa-whatsapp"></i> WhatsApp
-                        </a>
+                        <button type="button" class="btn btn-outline-success btn-sm btn-send-wa"
+                            data-id="{{ $transaksi->transaksi_id }}">
+                            <span class="spinner-border spinner-border-sm d-none" role="status"
+                                aria-hidden="true"></span>
+                            <i class="fab fa-whatsapp"></i> <span class="btn-text">WhatsApp</span>
+                        </button>
 
                         <button type="button" class="btn btn-outline-info btn-sm btn-send-email"
                             data-id="{{ $transaksi->transaksi_id }}" title="Kirim via Email">
@@ -180,6 +183,71 @@
                         spinner.classList.add('d-none');
                         btnText.textContent = ' Send Email';
                     });
+            }
+        });
+    });
+
+    $('.btn-send-wa').on('click', function() {
+        const btn = $(this);
+        const id = btn.data('id');
+
+        Swal.fire({
+            title: 'Kirim WhatsApp?',
+            text: "Pastikan data sudah benar.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Kirim',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Ubah tombol menjadi loading
+                const spinner = btn.find('.spinner-border');
+                const btnText = btn.find('.btn-text');
+                spinner.removeClass('d-none');
+                btnText.text('Mengirim...');
+
+                // Tampilkan loading SweetAlert
+                Swal.fire({
+                    title: 'Mengirim...',
+                    text: 'Mohon tunggu beberapa detik.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Kirim permintaan ke server
+                $.ajax({
+                    url: `/transaksi/${id}/send`,
+                    method: 'GET',
+                    success: function(res) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sukses',
+                            text: res.message ?? 'Berhasil mengirim WhatsApp.'
+                        });
+                    },
+                    error: function(xhr) {
+                        let errorText = 'Terjadi kesalahan.';
+
+                        if (xhr.responseJSON?.message) {
+                            errorText = xhr.responseJSON.message;
+                        } else if (xhr.responseText) {
+                            errorText = xhr.responseText;
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: errorText
+                        });
+                    },
+                    complete: function() {
+                        // Kembalikan tombol ke keadaan semula
+                        spinner.addClass('d-none');
+                        btnText.text('WhatsApp');
+                    }
+                });
             }
         });
     });

@@ -16,6 +16,8 @@ use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\DB;
 use App\Mail\InvoiceMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 
@@ -317,85 +319,119 @@ class TransaksiController extends Controller
 
     public function sendInvoiceToWablas($id)
     {
-        $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
-        $agenId = $transaksi->agen_id;
+        try {
+            $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
+            $agenId = $transaksi->agen_id;
 
-        $hargaAgenMap = [];
-        $subtotal = 0;
+            $hargaAgenMap = [];
+            $subtotal = 0;
 
-        foreach ($transaksi->detailTransaksi as $detail) {
-            $barangId = $detail->barang_id;
+            foreach ($transaksi->detailTransaksi as $detail) {
+                $barangId = $detail->barang_id;
 
-            $hargaAgen = HargaAgen::where('agen_id', $agenId)
-                ->where('barang_id', $barangId)
-                ->first();
+                $hargaAgen = HargaAgen::where('agen_id', $agenId)
+                    ->where('barang_id', $barangId)
+                    ->first();
 
-            if ($hargaAgen) {
-                $hargaSatuan = $hargaAgen->harga;
-                $diskon = $hargaAgen->diskon + (($hargaSatuan * $hargaAgen->diskon_persen) / 100);
+                if ($hargaAgen) {
+                    $hargaSatuan = $hargaAgen->harga;
+                    $diskon = $hargaAgen->diskon + (($hargaSatuan * $hargaAgen->diskon_persen) / 100);
 
-                $hargaSetelahDiskon = $hargaSatuan - $diskon;
-                $hargaFinal = $hargaSetelahDiskon * $detail->qty;
+                    $hargaSetelahDiskon = $hargaSatuan - $diskon;
+                    $hargaFinal = $hargaSetelahDiskon * $detail->qty;
+                    $totalDiskonItem = $diskon * $detail->qty;
 
-                $totalDiskonItem = $diskon * $detail->qty;
+                    $subtotal += $hargaFinal;
 
-                $subtotal += $hargaFinal;
-
-                $hargaAgenMap[$barangId] = [
-                    'harga_satuan' => $hargaSatuan,
-                    'totalDiskonItem' => $totalDiskonItem,
-                    'harga_setelah_diskon' => $hargaSetelahDiskon,
-                    'harga_final' => $hargaFinal
-                ];
+                    $hargaAgenMap[$barangId] = [
+                        'harga_satuan' => $hargaSatuan,
+                        'totalDiskonItem' => $totalDiskonItem,
+                        'harga_setelah_diskon' => $hargaSetelahDiskon,
+                        'harga_final' => $hargaFinal
+                    ];
+                }
             }
+
+            $grandTotal = $subtotal - ($transaksi->diskon ?? 0) + ($transaksi->pajak_transaksi ?? 0);
+
+            $fileName = 'invoice-' . $transaksi->kode_transaksi . '.pdf';
+            $publicDir = public_path('storage/temp');
+
+            if (!file_exists($publicDir)) {
+                mkdir($publicDir, 0775, true);
+            }
+
+            $filePath = $publicDir . '/' . $fileName;
+
+            PDF::loadView('transaksi.invoice', [
+                'transaksi' => $transaksi,
+                'hargaAgenMap' => $hargaAgenMap,
+                'subtotal' => $subtotal,
+                'Gtotal' => $grandTotal
+            ])->save($filePath);
+
+            $fileUrl = asset('storage/temp/' . $fileName);
+            $nomorWhatsapp = $transaksi->agen->no_telf;
+
+            $payload = [
+                'data' => [
+                    [
+                        'phone' => $nomorWhatsapp,
+                        'document' => $fileUrl,
+                        'filename' => $fileName
+                    ]
+                ]
+            ];
+
+            $token = "GNZMk9TteQJj9ooLoPCuAF898KDaJTbeagVdNpvYDVsMOJq2SgHWSBXQsVHZ41kM";
+            $secret_key = "ULyzAU93";
+
+            $curl = curl_init();
+
+            curl_setopt_array($curl, [
+                CURLOPT_URL => "https://texas.wablas.com/api/v2/send-document",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode($payload),
+                CURLOPT_HTTPHEADER => [
+                    "Authorization: $token.$secret_key",
+                    "Content-Type: application/json"
+                ],
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+            ]);
+
+            $response = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($curl);
+            curl_close($curl);
+
+            if ($response === false || $httpCode !== 200) {
+                return response()->json([
+                    'message' => 'Gagal mengirim WhatsApp.',
+                    'error' => $curlError ?: $response
+                ], 500);
+            }
+
+            $resultData = json_decode($response, true);
+
+            // Jika dari Wablas tidak sukses
+            if (!isset($resultData['status']) || $resultData['status'] !== true) {
+                return response()->json([
+                    'message' => 'Gagal mengirim melalui WhatsApp.',
+                    'error' => $resultData['message'] ?? 'Tidak diketahui'
+                ], 500);
+            }
+
+            return response()->json([
+                'message' => 'Invoice berhasil dikirim melalui WhatsApp.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error sending invoice via Wablas: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat mengirim invoice via WhatsApp.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $grandTotal = $subtotal - ($transaksi->diskon ?? 0) + ($transaksi->pajak_transaksi ?? 0);
-
-        $fileName = 'invoice-' . $transaksi->kode_transaksi . '.pdf';
-        $filePath = storage_path('app/temp/' . $fileName);
-
-        // Generate PDF dan simpan
-        PDF::loadView('transaksi.invoice', [
-            'transaksi' => $transaksi,
-            'hargaAgenMap' => $hargaAgenMap,
-            'subtotal' => $subtotal,
-            'Gtotal' => $grandTotal
-        ])->save($filePath);
-
-        // Baca file dan encode base64
-        $fileContent = file_get_contents($filePath);
-        $fileBase64 = base64_encode($fileContent);
-
-        $curl = curl_init();
-        $token = "5IO4MTcMD6q0i6vwYGliL4QmSumw66ORBECk7YvknKhKErhAHhy6D8d";
-        $secret_key = "2U28NYOp";
-
-        // Ambil nomor agen
-        $nomorWhatsapp = $transaksi->agen->no_telf; // Pastikan sudah dalam format internasional (628xxx)
-
-        $data = [
-            'phone' => $nomorWhatsapp,
-            'file' => $fileBase64,
-            'filename' => $fileName,
-        ];
-
-        curl_setopt_array($curl, [
-            CURLOPT_URL => "https://wablas.com/api/send-document-from-local",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => http_build_query($data),
-            CURLOPT_HTTPHEADER => [
-                "Authorization: $token.$secret_key",
-            ],
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-        ]);
-
-        $result = curl_exec($curl);
-        curl_close($curl);
-
-        echo "<pre>";
-        print_r($result);
     }
 }

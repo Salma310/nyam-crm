@@ -42,6 +42,15 @@
                     <div class="icon"><i class="fas fa-users"></i></div>
                 </div>
             </div>
+            <div class="col-md-3">
+                <div class="small-box bg-gradient-secondary" id="wablas-status-box">
+                    <div class="inner">
+                        <h3 id="wablas-status">...</h3>
+                        <p>Status WhatsApp</p>
+                    </div>
+                    <div class="icon"><i class="fab fa-whatsapp"></i></div>
+                </div>
+            </div>
         </div>
 
         <div class="row">
@@ -185,6 +194,45 @@
                         }
                     }
                 });
+            });
+
+            function updateWablasStatus() {
+                fetch("{{ url('/wablas-status') }}")
+                    .then(response => response.json())
+                    .then(data => {
+                        const statusEl = document.getElementById("wablas-status");
+                        const boxEl = document.getElementById("wablas-status-box");
+
+                        statusEl.innerText = data.status;
+
+                        // Ubah warna box tergantung status
+                        boxEl.classList.remove("bg-gradient-success", "bg-gradient-danger", "bg-gradient-warning",
+                            "bg-gradient-secondary");
+
+                        switch (data.status) {
+                            case "CONNECTED":
+                                boxEl.classList.add("bg-gradient-success");
+                                break;
+                            case "DISCONNECTED":
+                                boxEl.classList.add("bg-gradient-danger");
+                                break;
+                            case "EXPIRED":
+                                boxEl.classList.add("bg-gradient-warning");
+                                break;
+                            default:
+                                boxEl.classList.add("bg-gradient-secondary");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Gagal mengambil status Wablas:", error);
+                        document.getElementById("wablas-status").innerText = "ERROR";
+                        document.getElementById("wablas-status-box").classList.add("bg-gradient-danger");
+                    });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                updateWablasStatus();
+                setInterval(updateWablasStatus, 10000); // update setiap 10 detik
             });
         </script>
     @endpush
