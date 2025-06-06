@@ -101,4 +101,36 @@ class DashboardController extends Controller
             'inactiveAgents' => $inactiveAgents
         ]);
     }
+
+    public function getWablasStatus()
+    {
+        $token = "GNZMk9TteQJj9ooLoPCuAF898KDaJTbeagVdNpvYDVsMOJq2SgHWSBXQsVHZ41kM";
+        $secret_key = "ULyzAU93";
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => "https://texas.wablas.com/api/v2/device",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                "Authorization: $token.$secret_key",
+                "Content-Type: application/json"
+            ],
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+        ]);
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+        $data = json_decode($response, true);
+
+        if (isset($data['data']['status'])) {
+            return response()->json([
+                'status' => $data['data']['status'] // "CONNECTED", "DISCONNECTED", "EXPIRED", etc.
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'UNKNOWN'
+        ], 500);
+    }
 }
