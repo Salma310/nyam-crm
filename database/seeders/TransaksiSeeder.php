@@ -39,7 +39,7 @@ class TransaksiSeeder extends Seeder
                 'tgl_transaksi' => $tglTransaksi,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]);
+            ], 'transaksi_id');
 
             $barangDipilih = collect($barangIds)->random($jumlahDetail);
             foreach ($barangDipilih as $barangId) {
