@@ -371,27 +371,34 @@ class TransaksiController extends Controller
         $publicUrl = asset('storage/temp/' . $fileName);
 
         // Kirim ke WhatsApp
-        return $this->sendPdfWithWhapi($agen->no_telf, $publicUrl, $fileName);
+        return $this->sendPdfWithWhapi($agen->no_telf, $fileName);
     }
 
-    private function sendPdfWithWhapi($phone, $fileUrl, $fileName)
+    private function sendPdfWithWhapi($phone, $fileName)
     {
         $token = env('WHAPI_TOKEN');
         $channelId = env('WHAPI_CHANNEL_ID');
 
         $url = "https://gate.whapi.cloud/messages/document";
 
-        $payload = [
-            'to' => $phone.'@s.whatsapp.net',
-            'filename' => $fileName,
-            'media' => $fileUrl,
-            'channelId' => $channelId // tambahkan ini jika channel perlu
-        ];
+        $filePath = storage_path('app/public/invoices/' . $fileName);
+        
+        if (!file_exists($filePath)) {
+            return response()->json([
+                'message' => 'File tidak ditemukan.',
+                'error' => 'File not found: ' . $filePath
+            ], 404);
+        }
 
         $response = Http::withHeaders([
-            'Authorization' => $token,
-            'Content-Type' => 'application/json'
-        ])->post($url, $payload);
+            'Authorization' => 'Bearer ' . $token,
+        ])->attach(
+            'media', file_get_contents($filePath), $fileName
+        )->post($url, [
+            'channelId' => $channelId,
+            'to' => $phone . '@s.whatsapp.net',
+            'fileName' => $fileName
+        ]);
 
         if ($response->successful()) {
             return response()->json([
