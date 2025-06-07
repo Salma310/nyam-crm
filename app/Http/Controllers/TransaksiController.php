@@ -317,120 +317,91 @@ class TransaksiController extends Controller
         }
     }
 
-    public function sendInvoiceToWablas($id)
+    public function sendInvoiceToWhapi($id)
     {
-        try {
-            $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
-            $agenId = $transaksi->agen_id;
+        $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
+        $agen = $transaksi->agen;
 
-            $hargaAgenMap = [];
-            $subtotal = 0;
+        $hargaAgenMap = [];
+        $subtotal = 0;
 
-            foreach ($transaksi->detailTransaksi as $detail) {
-                $barangId = $detail->barang_id;
+        foreach ($transaksi->detailTransaksi as $detail) {
+            $barangId = $detail->barang_id;
 
-                $hargaAgen = HargaAgen::where('agen_id', $agenId)
-                    ->where('barang_id', $barangId)
-                    ->first();
+            $hargaAgen = HargaAgen::where('agen_id', $agen->id)
+                ->where('barang_id', $barangId)
+                ->first();
 
-                if ($hargaAgen) {
-                    $hargaSatuan = $hargaAgen->harga;
-                    $diskon = $hargaAgen->diskon + (($hargaSatuan * $hargaAgen->diskon_persen) / 100);
+            if ($hargaAgen) {
+                $hargaSatuan = $hargaAgen->harga;
+                $diskon = $hargaAgen->diskon + (($hargaSatuan * $hargaAgen->diskon_persen) / 100);
 
-                    $hargaSetelahDiskon = $hargaSatuan - $diskon;
-                    $hargaFinal = $hargaSetelahDiskon * $detail->qty;
-                    $totalDiskonItem = $diskon * $detail->qty;
+                $hargaSetelahDiskon = $hargaSatuan - $diskon;
+                $hargaFinal = $hargaSetelahDiskon * $detail->qty;
+                $totalDiskonItem = $diskon * $detail->qty;
 
-                    $subtotal += $hargaFinal;
+                $subtotal += $hargaFinal;
 
-                    $hargaAgenMap[$barangId] = [
-                        'harga_satuan' => $hargaSatuan,
-                        'totalDiskonItem' => $totalDiskonItem,
-                        'harga_setelah_diskon' => $hargaSetelahDiskon,
-                        'harga_final' => $hargaFinal
-                    ];
-                }
+                $hargaAgenMap[$barangId] = [
+                    'harga_satuan' => $hargaSatuan,
+                    'totalDiskonItem' => $totalDiskonItem,
+                    'harga_setelah_diskon' => $hargaSetelahDiskon,
+                    'harga_final' => $hargaFinal
+                ];
             }
+        }
 
-            $grandTotal = $subtotal - ($transaksi->diskon ?? 0) + ($transaksi->pajak_transaksi ?? 0);
+        $grandTotal = $subtotal - ($transaksi->diskon_transaksi ?? 0) + ($transaksi->pajak_transaksi ?? 0);
 
-            $fileName = 'invoice-' . $transaksi->kode_transaksi . '.pdf';
-            $publicDir = public_path('storage/temp');
+        // Generate PDF invoice
+        $fileName = 'invoice-' . $transaksi->kode_transaksi . '.pdf';
+        $filePath = storage_path('app/public/invoices/' . $fileName);
 
-            if (!file_exists($publicDir)) {
-                mkdir($publicDir, 0775, true);
-            }
+        if (!file_exists(dirname($filePath))) {
+            mkdir(dirname($filePath), 0755, true);
+        }
 
-            $filePath = $publicDir . '/' . $fileName;
+        PDF::loadView('transaksi.invoice', [
+            'transaksi' => $transaksi,
+            'hargaAgenMap' => $hargaAgenMap,
+            'subtotal' => $subtotal,
+            'Gtotal' => $grandTotal
+        ])->save($filePath);
 
-            PDF::loadView('transaksi.invoice', [
-                'transaksi' => $transaksi,
-                'hargaAgenMap' => $hargaAgenMap,
-                'subtotal' => $subtotal,
-                'Gtotal' => $grandTotal
-            ])->save($filePath);
+        $publicUrl = asset('storage/temp/' . $fileName);
 
-            $fileUrl = asset('storage/temp/' . $fileName);
-            $nomorWhatsapp = $transaksi->agen->no_telf;
+        // Kirim ke WhatsApp
+        return $this->sendPdfWithWhapi($agen->no_telf, $publicUrl, $fileName);
+    }
 
-            $payload = [
-                'data' => [
-                    [
-                        'phone' => $nomorWhatsapp,
-                        'document' => $fileUrl,
-                        'filename' => $fileName
-                    ]
-                ]
-            ];
+    private function sendPdfWithWhapi($phone, $fileUrl, $fileName)
+    {
+        $token = env('WHAPI_TOKEN');
+        $channelId = env('WHAPI_CHANNEL_ID');
 
-            $token = "GNZMk9TteQJj9ooLoPCuAF898KDaJTbeagVdNpvYDVsMOJq2SgHWSBXQsVHZ41kM";
-            $secret_key = "ULyzAU93";
+        $url = "https://gate.whapi.cloud/messages/document";
 
-            $curl = curl_init();
+        $payload = [
+            'to' => $phone.'@s.whatsapp.net',
+            'filename' => $fileName,
+            'media' => $fileUrl,
+            'channelId' => $channelId // tambahkan ini jika channel perlu
+        ];
 
-            curl_setopt_array($curl, [
-                CURLOPT_URL => "https://texas.wablas.com/api/v2/send-document",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => json_encode($payload),
-                CURLOPT_HTTPHEADER => [
-                    "Authorization: $token.$secret_key",
-                    "Content-Type: application/json"
-                ],
-                CURLOPT_SSL_VERIFYHOST => 0,
-                CURLOPT_SSL_VERIFYPEER => 0,
-            ]);
+        $response = Http::withHeaders([
+            'Authorization' => $token,
+            'Content-Type' => 'application/json'
+        ])->post($url, $payload);
 
-            $response = curl_exec($curl);
-            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $curlError = curl_error($curl);
-            curl_close($curl);
-
-            if ($response === false || $httpCode !== 200) {
-                return response()->json([
-                    'message' => 'Gagal mengirim WhatsApp.',
-                    'error' => $curlError ?: $response
-                ], 500);
-            }
-
-            $resultData = json_decode($response, true);
-
-            // Jika dari Wablas tidak sukses
-            if (!isset($resultData['status']) || $resultData['status'] !== true) {
-                return response()->json([
-                    'message' => 'Gagal mengirim melalui WhatsApp.',
-                    'error' => $resultData['message'] ?? 'Tidak diketahui'
-                ], 500);
-            }
-
+        if ($response->successful()) {
             return response()->json([
-                'message' => 'Invoice berhasil dikirim melalui WhatsApp.'
+                'message' => 'Invoice berhasil dikirim ke WhatsApp.',
+                'response' => $response->json()
             ]);
-        } catch (\Exception $e) {
-            Log::error('Error sending invoice via Wablas: ' . $e->getMessage());
+        } else {
             return response()->json([
-                'message' => 'Terjadi kesalahan saat mengirim invoice via WhatsApp.',
-                'error' => $e->getMessage()
+                'message' => 'Gagal mengirim WhatsApp.',
+                'error' => $response->body()
             ], 500);
         }
     }
