@@ -320,7 +320,7 @@ class TransaksiController extends Controller
     public function sendInvoiceToWhapi($id)
     {
         $transaksi = Transaksi::with(['agen', 'detailTransaksi.barang'])->findOrFail($id);
-        $agen = $transaksi->agen;
+        $agenId = $transaksi->agen_id;
 
         $hargaAgenMap = [];
         $subtotal = 0;
@@ -328,14 +328,13 @@ class TransaksiController extends Controller
         foreach ($transaksi->detailTransaksi as $detail) {
             $barangId = $detail->barang_id;
 
-            $hargaAgen = HargaAgen::where('agen_id', $agen->id)
+            $hargaAgen = HargaAgen::where('agen_id', $agenId)
                 ->where('barang_id', $barangId)
                 ->first();
 
             if ($hargaAgen) {
                 $hargaSatuan = $hargaAgen->harga;
                 $diskon = $hargaAgen->diskon + (($hargaSatuan * $hargaAgen->diskon_persen) / 100);
-
                 $hargaSetelahDiskon = $hargaSatuan - $diskon;
                 $hargaFinal = $hargaSetelahDiskon * $detail->qty;
                 $totalDiskonItem = $diskon * $detail->qty;
@@ -351,7 +350,7 @@ class TransaksiController extends Controller
             }
         }
 
-        $grandTotal = $subtotal - ($transaksi->diskon_transaksi ?? 0) + ($transaksi->pajak_transaksi ?? 0);
+        $grandTotal = $subtotal - ($transaksi->diskon ?? 0) + ($transaksi->pajak_transaksi ?? 0);
 
         // Generate PDF invoice
         $fileName = 'invoice-' . $transaksi->kode_transaksi . '.pdf';
@@ -368,30 +367,34 @@ class TransaksiController extends Controller
             'Gtotal' => $grandTotal
         ])->save($filePath);
 
-        $publicUrl = asset('storage/temp/' . $fileName);
-
         // Kirim ke WhatsApp
-        return $this->sendPdfWithWhapi($agen->no_telf, $publicUrl, $fileName);
+        return $this->sendPdfWithWhapi($transaksi->agen->no_telf, $fileName, "Hai! 👋\n\nTerima kasih telah berbelanja di *Nyam Baby Food* 🍽️✨\nBerikut kami lampirkan invoice resmi untuk pesanan Anda.\n\n📌 Mohon cek kembali detail transaksi. Jika ada pertanyaan, tim kami siap membantu.\n\nSemoga hari Anda menyenangkan & tetap sehat selalu! 🌿😊\n#NyamBabyFood");
     }
 
-    private function sendPdfWithWhapi($phone, $fileUrl, $fileName)
+    private function sendPdfWithWhapi($phone, $fileName, $caption = null)
     {
-        $token = env('WHAPI_TOKEN');
-        $channelId = env('WHAPI_CHANNEL_ID');
-
         $url = "https://gate.whapi.cloud/messages/document";
 
-        $payload = [
-            'to' => $phone.'@s.whatsapp.net',
-            'filename' => $fileName,
-            'media' => $fileUrl,
-            'channelId' => $channelId // tambahkan ini jika channel perlu
-        ];
+        $filePath = storage_path('app/public/invoices/' . $fileName);
+
+        if (!file_exists($filePath)) {
+            return response()->json([
+                'message' => 'File tidak ditemukan.',
+                'error' => 'File not found: ' . $filePath
+            ], 404);
+        }
 
         $response = Http::withHeaders([
-            'Authorization' => $token,
-            'Content-Type' => 'application/json'
-        ])->post($url, $payload);
+            'Authorization' => 'Bearer FXSLBlhrS9qlKeMAPkKH9bEvZcgW6tBe',
+        ])->attach(
+            'media',
+            file_get_contents($filePath),
+            $fileName
+        )->post($url, [
+            'to' => $phone . '@s.whatsapp.net',
+            'fileName' => $fileName,
+            'caption' => $caption ?? 'Berikut adalah invoice pesanan Anda.'
+        ]);
 
         if ($response->successful()) {
             return response()->json([
