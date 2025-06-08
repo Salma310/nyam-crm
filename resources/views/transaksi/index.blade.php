@@ -180,7 +180,7 @@
             <div class="header">
                 <div class="group-btn">
                     <button class="btn btn-primary" onclick="modalAction('{{ url('transaksi/create') }}')">
-                        <i class="fas fa-plus"></i>Add Transaksi</button>
+                        <i class="fas fa-plus"></i>Add Penjualan</button>
                 </div>
                 <div class="search-box">
                     <input id="searchInput" onkeyup="searchTable()" placeholder="Search" type="text" />

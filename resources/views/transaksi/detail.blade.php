@@ -54,72 +54,75 @@
                     <h5>Daftar Barang</h5>
                 </div>
                 <div class="card-body p-0">
-                    <table class="table table-striped table-bordered mb-0">
-                        <thead>
-                            <tr>
-                                <th>Kode Barang</th>
-                                <th>Nama Barang</th>
-                                <th>Qty</th>
-                                <th>Harga Jual</th>
-                                <th>Diskon</th>
-                                <th>Total Harga</th>
-                                <th>Hpp</th>
-                                <th>Keuntungan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                $subtotal = 0;
-                                $totalKeuntungan = 0;
-                            @endphp
-                            @foreach ($detailHarga as $item)
-                                @php
-                                    $detail = $item['detail'];
-                                    $qty = $detail->qty;
-                                    $hpp = $item['hpp'];
-                                    $totalBeli = $hpp * $qty;
-                                    $keuntungan = $item['harga_final'] - $totalBeli;
-                                    $totalKeuntungan += $keuntungan;
-                                    $totalSemua =
-                                        $totalHarga + $transaksi->pajak_transaksi - $transaksi->diskon_transaksi;
-                                @endphp
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered mb-0">
+                            <thead>
                                 <tr>
-                                    <td>{{ $detail->barang->kode_barang ?? '-' }}</td>
-                                    <td>{{ $detail->barang->nama_barang ?? '-' }}</td>
-                                    <td>{{ $qty }}</td>
-                                    <td>Rp {{ number_format($item['harga_satuan'], 0, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($item['diskon'], 0, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($item['harga_final'], 0, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($hpp, 0, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($keuntungan, 0, ',', '.') }}</td>
+                                    <th>Kode Barang</th>
+                                    <th>Nama Barang</th>
+                                    <th>Qty</th>
+                                    <th>Harga Jual</th>
+                                    <th>Diskon</th>
+                                    <th>Total Harga</th>
+                                    <th>Hpp</th>
+                                    <th>Keuntungan</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                        <tfoot>
-                            <tr class="total-row">
-                                <td colspan="6"><strong>Diskon</strong></td>
-                                <td colspan="3"><strong>Rp.
-                                        {{ number_format($transaksi->diskon_transaksi, 0, ',', '.') }}</strong>
-                                </td>
-                            </tr>
-                            <tr class="total-row">
-                                <td colspan="6"><strong>Pajak</strong></td>
-                                <td colspan="3"><strong>Rp.
-                                        {{ number_format($transaksi->pajak_transaksi, 0, ',', '.') }}</strong>
-                                </td>
-                            </tr>
-                            <tr class="total-row" style="background:#e7f3fc;">
-                                <td colspan="6"><strong>Total Penjualan</strong></td>
-                                <td colspan="3"><strong>Rp. {{ number_format($totalSemua, 0, ',', '.') }}</strong>
-                                </td>
-                            </tr>
-                            <tr class="total-row">
-                                <td colspan="6"><strong>Total Keuntungan</strong></td>
-                                <td colspan="3"><strong>Rp.
-                                        {{ number_format($totalKeuntungan, 0, ',', '.') }}</strong></td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $subtotal = 0;
+                                    $totalKeuntungan = 0;
+                                @endphp
+                                @foreach ($detailHarga as $item)
+                                    @php
+                                        $detail = $item['detail'];
+                                        $qty = $detail->qty;
+                                        $hpp = $item['hpp'];
+                                        $totalBeli = $hpp * $qty;
+                                        $keuntungan = $item['harga_final'] - $totalBeli;
+                                        $totalKeuntungan += $keuntungan;
+                                        $totalSemua =
+                                            $totalHarga + $transaksi->pajak_transaksi - $transaksi->diskon_transaksi;
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $detail->barang->kode_barang ?? '-' }}</td>
+                                        <td>{{ $detail->barang->nama_barang ?? '-' }}</td>
+                                        <td>{{ $qty }}</td>
+                                        <td>Rp {{ number_format($item['harga_satuan'], 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($item['diskon'], 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($item['harga_final'], 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($hpp, 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($keuntungan, 0, ',', '.') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr class="total-row">
+                                    <td colspan="6"><strong>Diskon</strong></td>
+                                    <td colspan="3"><strong>Rp.
+                                            {{ number_format($transaksi->diskon_transaksi, 0, ',', '.') }}</strong>
+                                    </td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td colspan="6"><strong>Pajak</strong></td>
+                                    <td colspan="3"><strong>Rp.
+                                            {{ number_format($transaksi->pajak_transaksi, 0, ',', '.') }}</strong>
+                                    </td>
+                                </tr>
+                                <tr class="total-row" style="background:#e7f3fc;">
+                                    <td colspan="6"><strong>Total Penjualan</strong></td>
+                                    <td colspan="3"><strong>Rp.
+                                            {{ number_format($totalSemua, 0, ',', '.') }}</strong>
+                                    </td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td colspan="6"><strong>Total Keuntungan</strong></td>
+                                    <td colspan="3"><strong>Rp.
+                                            {{ number_format($totalKeuntungan, 0, ',', '.') }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
