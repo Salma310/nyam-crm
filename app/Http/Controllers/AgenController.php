@@ -11,7 +11,7 @@ use App\Models\Agen;
 use App\Models\HargaAgen;
 use App\Models\Barang;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Http;
 
 class AgenController extends Controller
 {
@@ -227,5 +227,41 @@ class AgenController extends Controller
 
         return response()->json(['message' => 'Agen berhasil dihapus.']);
     }
+
+    public function sendReminder($id)
+    {
+        $agen = Agen::findOrFail($id);
+
+        $phone = $agen->no_telf; // pastikan ini format internasional, contoh: 628123xxxxx
+        $caption = "Halo *{$agen->nama}* 👋\nKami dari *Nyam Baby Food* ingin mengingatkan bahwa Anda belum melakukan transaksi dalam 30 hari terakhir. Yuk segera restock kebutuhan pelanggan Anda bersama kami! 🍲💼\n\nJika butuh bantuan atau informasi lebih lanjut, silakan hubungi kami.\n\nTerima kasih 😊";
+
+        $response = $this->sendTextWithWhapi($phone, $caption);
+
+        if ($response->successful()) {
+            // return back()->with('success', 'Pengingat berhasil dikirim ke WhatsApp.');
+            return response()->json([
+                'message' => 'Reminder berhasil dikirim ke WhatsApp untuk agen: '. $agen->nama
+            ]);
+        } else {
+            // return back()->with('error', 'Gagal mengirim pengingat: ' . $response->body());
+            return response()->json([
+                'error' => 'Gagal mengirim pengingat.'
+            ], 500);
+        }
+    }
+
+    private function sendTextWithWhapi($phone, $message)
+    {
+        $url = "https://gate.whapi.cloud/messages/text";
+
+        return Http::withHeaders([
+            'Authorization' => 'Bearer FXSLBlhrS9qlKeMAPkKH9bEvZcgW6tBe',
+        ])->post($url, [
+            'to' => $phone . '@s.whatsapp.net',
+            'text' => $message
+        ]);
+    }
+
+
 
 }

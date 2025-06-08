@@ -67,11 +67,19 @@
                         @else
                             <ul class="list-group list-group-flush">
                                 @foreach ($inactiveAgents as $agen)
-                                    <li class="list-group-item">
+                                    {{-- <li class="list-group-item"> --}}
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div>
                                         <strong>{{ $agen->nama }}</strong><br>
                                         <small>Terakhir transaksi:
                                             {{ $agen->terakhir_transaksi ? \Carbon\Carbon::parse($agen->terakhir_transaksi)->format('d M Y') : 'Belum pernah' }}</small>
-                                    </li>
+                                        </div>
+                                        <button class="btn btn-sm btn-success kirim-wa-btn"
+                                            data-id="{{ $agen->id }}"
+                                            data-nama="{{ $agen->nama }}">
+                                            <i class="fab fa-whatsapp"></i>
+                                        </button>
+                                        </li>
                                 @endforeach
                             </ul>
                         @endif
@@ -164,10 +172,16 @@
                     }
                 });
 
-                new Chart(document.getElementById('topAgenChart').getContext('2d'), {
+                // new Chart(document.getElementById('topAgenChart').getContext('2d'), {
+                const ctx = document.getElementById('topAgenChart').getContext('2d');
+                const agenIds = @json($topAgen->pluck('id'));
+                const agenLabels = @json($topAgen->pluck('nama'));
+                const agenData = @json($topAgen->pluck('total_transaksi'));
+                new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: @json($topAgen->pluck('nama')),
+                        // labels:agenIds,
                         datasets: [{
                             label: 'Jumlah Transaksi',
                             data: @json($topAgen->pluck('total_transaksi')),
@@ -178,6 +192,13 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         indexAxis: 'y',
+                        onClick: function (event, elements) {
+                            if (elements.length > 0) {
+                                const index = elements[0].index;
+                                const agenId = agenIds[index];
+                                window.location.href = `/agen/${agenId}/show`;
+                            }
+                        },
                         scales: {
                             x: {
                                 beginAtZero: true
@@ -185,6 +206,48 @@
                         }
                     }
                 });
+
+                // Kirim WhatsApp Button
+                document.querySelectorAll('.kirim-wa-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const agenId = this.dataset.id;
+                        console.log("Agen ID:", agenId); 
+                        const agenNama = this.dataset.nama;
+
+                        Swal.fire({
+                            title: 'Kirim WhatsApp?',
+                            text: `Kirim reminder ke agen ${agenNama}?`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#6c5ce7',
+                            cancelButtonColor: '#636e72',
+                            confirmButtonText: 'Kirim',
+                            cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                fetch(`/agen/${agenId}/send-reminder`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    }
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.message) {
+                                        Swal.fire('Berhasil!', data.message, 'success');
+                                    } else {
+                                        Swal.fire('Gagal!', data.error || 'Terjadi kesalahan.', 'error');
+                                    }
+                                })
+                                .catch(() => {
+                                    Swal.fire('Gagal!', 'Gagal mengirim permintaan.', 'error');
+                                });
+                            }
+                        });
+                    });
+                });
+
             });
         </script>
     @endpush

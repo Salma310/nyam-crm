@@ -37,12 +37,13 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}/update', [AgenController::class, 'update']);
         // Route::put('/{id}/update_harga', [AgenController::class, 'update_harga']);
         Route::put('/{id}/update_harga', [AgenController::class, 'update_harga'])->name('harga-agen.update');
-        Route::get('/{id}/show', [AgenController::class, 'show']);
+        Route::get('/{id}/show', [AgenController::class, 'show'])->name('agen.show');
         Route::get('/{id}/delete', [AgenController::class, 'confirm']);
         Route::delete('/{id}/delete', [AgenController::class, 'delete']);
         Route::get('/{id}', [AgenController::class, 'show']);
         Route::delete('/{id}', [AgenController::class, 'destroy']);
         Route::get('/{id}/export_pdf', [AgenController::class, 'export_pdf']);
+        Route::post('/agen/{id}/send-reminder', [AgenController::class, 'sendReminder'])->name('agen.sendReminder');
     });
 
     Route::group(['prefix' => 'barang'], function () {

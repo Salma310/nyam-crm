@@ -69,6 +69,7 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($item) {
                 return (object) [
+                    'id' => $item->agen->agen_id ?? null,
                     'nama' => $item->agen->nama ?? '-',
                     'total_transaksi' => $item->total_transaksi
                 ];
@@ -84,10 +85,11 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($agen) {
                 return (object) [
+                    'id' => $agen->id,
                     'nama' => $agen->nama,
                     'terakhir_transaksi' => optional($agen->transaksi->first())->tgl_transaksi
                 ];
-            });
+        });
 
         return view('dashboard', [
             'totalRevenue' => $totalRevenue,
