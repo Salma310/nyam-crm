@@ -45,7 +45,7 @@ class AgenController extends Controller
             ->addColumn('aksi', function ($agen) { // menambahkan kolom aksi
                 $btn = '<button onclick="modalAction(\'' . url("agen/$agen->agen_id/show") . '\')" class="btn btn-primary"><i class="fas fa-qrcode"></i> Detail</button> ';
                 $btn .= '<button onclick="modalAction(\'' . url("agen/$agen->agen_id/edit") . '\')" class="btn btn-info"><i class="fas fa-edit"></i> Edit</button> ';
-                $btn .= '<button onclick="modalAction(\''.url("agen/$agen->agen_id/delete").'\')" class="btn btn-danger"><i class="fas fa-trash"></i> Hapus</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url("agen/$agen->agen_id/delete") . '\')" class="btn btn-danger"><i class="fas fa-trash"></i> Hapus</button> ';
                 return $btn;
             })
             ->rawColumns(['aksi']) // memberitahu bahwa kolom aksi adalah HTML
@@ -57,9 +57,10 @@ class AgenController extends Controller
         return view('agen.add');
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         //cek apsakah request berupa ajax
-        if($request->ajax() || $request->wantsJson()){
+        if ($request->ajax() || $request->wantsJson()) {
             $rules = [
                 'email' => 'required|unique:m_agen,email',
                 'nama' => 'required|string|max:200',
@@ -72,11 +73,11 @@ class AgenController extends Controller
 
             $validator = Validator::make($request->all(), $rules);
 
-            if($validator->fails()){
+            if ($validator->fails()) {
                 return response()->json([
-                'status' => false, // response status, false: error/gagal, true: berhasil
-                'message' => 'Validasi Gagal',
-                'msgField' => $validator->errors(), // pesan error validasi
+                    'status' => false, // response status, false: error/gagal, true: berhasil
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors(), // pesan error validasi
                 ]);
             }
 
@@ -135,7 +136,7 @@ class AgenController extends Controller
             'transaksi.detailTransaksi.barang'
         ])->findOrFail($id);
 
-         if (!$agen) {
+        if (!$agen) {
             return view('agen.show', ['agen' => null]);
         }
 
@@ -171,8 +172,9 @@ class AgenController extends Controller
         return view('agen.edit', compact('agen'));
     }
 
-    public function update(Request $request, $id) {
-         $agen = Agen::find($id);
+    public function update(Request $request, $id)
+    {
+        $agen = Agen::find($id);
         if (!$agen) {
             return response()->json([
                 'status' => false,
@@ -240,12 +242,13 @@ class AgenController extends Controller
         if ($response->successful()) {
             // return back()->with('success', 'Pengingat berhasil dikirim ke WhatsApp.');
             return response()->json([
-                'message' => 'Reminder berhasil dikirim ke WhatsApp untuk agen: '. $agen->nama
+                'message' => 'Reminder berhasil dikirim ke WhatsApp untuk agen: ' . $agen->nama
             ]);
         } else {
             // return back()->with('error', 'Gagal mengirim pengingat: ' . $response->body());
             return response()->json([
-                'error' => 'Gagal mengirim pengingat.'
+                'response' => $response->json()
+                // 'error' => 'Gagal mengirim pengingat.'
             ], 500);
         }
     }
@@ -255,13 +258,10 @@ class AgenController extends Controller
         $url = "https://gate.whapi.cloud/messages/text";
 
         return Http::withHeaders([
-            'Authorization' => 'Bearer FXSLBlhrS9qlKeMAPkKH9bEvZcgW6tBe',
+            'Authorization' => 'Bearer sxu9WkZN6sMwFswMKVmFS4bI4Gpp0Uo1',
         ])->post($url, [
             'to' => $phone . '@s.whatsapp.net',
-            'text' => $message
+            'body' => $message
         ]);
     }
-
-
-
 }

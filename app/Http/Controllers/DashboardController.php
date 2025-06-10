@@ -85,7 +85,7 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($agen) {
                 return (object) [
-                    'id' => $agen->id,
+                    'id' => $agen->agen_id,
                     'nama' => $agen->nama,
                     'terakhir_transaksi' => optional($agen->transaksi->first())->tgl_transaksi
                 ];

@@ -43,7 +43,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}', [AgenController::class, 'show']);
         Route::delete('/{id}', [AgenController::class, 'destroy']);
         Route::get('/{id}/export_pdf', [AgenController::class, 'export_pdf']);
-        Route::post('/agen/{id}/send-reminder', [AgenController::class, 'sendReminder'])->name('agen.sendReminder');
+        Route::post('/{id}/send-reminder', [AgenController::class, 'sendReminder'])->name('agen.sendReminder');
     });
 
     Route::group(['prefix' => 'barang'], function () {
