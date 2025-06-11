@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>@yield('title', 'Nyam CRM')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}"> {{-- Untuk mengirimkan token Laravel CSRF pada setiap request ajax --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
 
     {{-- AdminLTE & FontAwesome --}}
@@ -14,15 +14,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <style>
+        /* Tambahkan style custom seperti di pertanyaan */
         .custom-sidebar {
             background-color: #2159d2;
-            /* dark gray */
             color: #e5e7eb;
-            /* light gray text */
             font-family: 'Poppins', sans-serif;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
         }
-        
+
         .brand-link {
             background-color: #2b62da;
             color: #fff;
@@ -56,11 +55,11 @@
 
         .nav-sidebar .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.341);
-            color: #fff !important; /* Pastikan teks tetap putih */
+            color: #fff !important;
         }
 
         .nav-sidebar .nav-link.active {
-            background: linear-gradient(to right, #ffbc51, #ffc107);;
+            background: linear-gradient(to right, #ffbc51, #ffc107);
             color: #fff;
             font-weight: 600;
         }
@@ -88,7 +87,7 @@
 
         .collapsible-header:hover {
             background-color: rgba(255, 255, 255, 0.2);
-            color: #fff !important; /* Pastikan teks tetap putih */
+            color: #fff !important;
         }
 
         .collapsible-content {
@@ -104,9 +103,9 @@
             margin-right: 5px;
         }
     </style>
-</head>
 
-@stack('js')
+    @stack('css')
+</head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
@@ -114,28 +113,24 @@
         @include('components.header')
         @include('components.sidebar')
 
-        <div class="content-wrapper">
+        <div class="content-wrapper" style="padding-top: 60px;">
             <section class="content pt-4 px-3">
                 @yield('content')
             </section>
         </div>
 
+        <footer class="main-footer">
+            <strong>&copy; 2025 <a href="#">Nyam Baby Food CRM</a>.</strong> All rights reserved.
+        </footer>
+
     </div>
 
-    @include('components.password-modal') {{-- Modal ubah password global --}}
+    @include('components.password-modal')
 
-    <!-- Scripts -->
-    {{-- <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script> --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-    {{-- <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script> --}}
-    <!-- jQuery -->
+    {{-- Scripts --}}
     <script src="{{ asset('adminlte/plugins/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <!-- Bootstrap 4 -->
     <script src="{{ asset('adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <!-- DataTables & Plugins -->
     <script src="{{ asset('adminlte/plugins/datatables/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
@@ -147,42 +142,30 @@
     <script src="{{ asset('adminlte/plugins/pdfmake/vfs_fonts.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
-    <script src="{{ asset('adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
-    <!-- jquery validation -->
+    <script src="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/jquery-validation/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/jquery-validation/additional-methods.min.js') }}"></script>
-    <!-- SweetAlert 2 -->
-    <script src="{{ asset('adminlte/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Jquery Knob -->
-    <script src="{{ asset('adminlte/plugins/jquery-knob/jquery.knob.min.js') }}"></script>
-    <!-- AdminLTE App -->
     <script src="{{ asset('adminlte/dist/js/adminlte.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/chart.js/Chart.min.js') }}"></script>
-
-    {{-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
-
     <script>
-        // Untuk mengirimkan token Laravel CSRF pada setiap request ajax
+        // CSRF Token Setup
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-    </script>
-    <script>
+
+        // Logout Logic
         document.getElementById('logout-btn').addEventListener('click', function(e) {
             e.preventDefault();
-
             Swal.fire({
                 title: 'Yakin ingin logout?',
                 imageUrl: "{{ asset('logo.png') }}",
                 imageWidth: 80,
                 imageAlt: 'Logo Nyam!',
                 showCancelButton: true,
-                confirmButtonColor: '#e67e22', // oranye Nyam
-                cancelButtonColor: '#95a5a6', // abu-abu
+                confirmButtonColor: '#e67e22',
+                cancelButtonColor: '#95a5a6',
                 confirmButtonText: 'Ya, Logout',
                 cancelButtonText: 'Batal'
             }).then((result) => {
@@ -201,12 +184,7 @@
                                 text: 'Logout berhasil dilakukan',
                                 icon: 'success',
                                 showConfirmButton: false,
-                                timer: 1500,
-                                backdrop: `
-                            rgba(255,165,0,0.2)
-                            left top
-                            no-repeat
-                        `
+                                timer: 1500
                             }).then(() => {
                                 window.location.href = "{{ route('login') }}";
                             });
@@ -220,15 +198,14 @@
                 }
             });
         });
-    </script>
-    <script>
+
+        // Password Change Submit
         $('#ubahPasswordForm').on('submit', function(e) {
             e.preventDefault();
-
             const formData = $(this).serialize();
 
             $.ajax({
-                url: "{{ route('ubah-password') }}", // Ganti dengan route sesuai rute Laravel kamu
+                url: "{{ route('ubah-password') }}",
                 type: "POST",
                 data: formData,
                 success: function(response) {
@@ -240,13 +217,11 @@
                         showConfirmButton: false
                     });
 
-                    // Optional: reset form
                     $('#ubahPasswordForm')[0].reset();
-                    $('#modalUbahPassword').modal('hide'); // kalau kamu pakai modal
+                    $('#modalUbahPassword').modal('hide');
                 },
                 error: function(xhr) {
                     let errorMessage = 'Terjadi kesalahan.';
-
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
                     }
@@ -259,23 +234,20 @@
                 }
             });
         });
-    </script>
-    <script>
+
+        // Collapsible Sidebar Header
         document.addEventListener('DOMContentLoaded', function() {
             const headers = document.querySelectorAll('.collapsible-header');
-
             headers.forEach(header => {
                 header.addEventListener('click', function() {
                     const targetId = this.getAttribute('data-target');
                     const target = document.querySelector(targetId);
-
-                    if (target) {
-                        target.classList.toggle('hidden');
-                    }
+                    if (target) target.classList.toggle('hidden');
                 });
             });
         });
     </script>
+
     @stack('js')
 </body>
 
