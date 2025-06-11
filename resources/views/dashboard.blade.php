@@ -47,8 +47,20 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-chart-line"></i> Transaksi per Bulan</h3>
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="d-flex align-items-center mb-2 mb-md-0">
+                            <h3 class="card-title mb-0 mr-3"><i class="fas fa-chart-line"></i> Transaksi per Bulan</h3>
+                        </div>
+                        <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
+                            <label for="start_month" class="mr-2">Start</label>
+                            <input type="month" name="start_month" id="start_month" class="form-control mr-2"
+                                value="{{ request('start_month', now()->subMonths(11)->format('Y-m')) }}">
+
+                            <label for="end_month" class="mr-2">End</label>
+                            <input type="month" name="end_month" id="end_month" class="form-control mr-2"
+                                value="{{ request('end_month', now()->format('Y-m')) }}">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+                        </form>
                     </div>
                     <div class="card-body">
                         <canvas id="transaksiChart" height="200"></canvas>
@@ -88,33 +100,79 @@
             </div>
         </div>
 
+        @php
+            $tanggal_barang = request()->get('tanggal_barang', now()->startOfMonth()->format('Y-m-d') . ' - ' . now()->endOfMonth()->format('Y-m-d'));
+            $tanggal_agen = request()->get('tanggal_agen', now()->startOfMonth()->format('Y-m-d') . ' - ' . now()->endOfMonth()->format('Y-m-d'));
+        @endphp
+
         <div class="row">
             <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-box"></i> Barang Terlaris</h3>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="topBarangChart" height="200"></canvas>
-                    </div>
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                    <h3 class="card-title mb-2 mb-md-0"><i class="fas fa-box"></i> Barang Terlaris</h3>
+                    <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
+                        <label for="tanggal_barang" class="mr-2">Tanggal</label>
+                        <input type="text" name="tanggal_barang" id="tanggal_barang" class="form-control" value="{{ $tanggal_barang }}">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <canvas id="topBarangChart" height="200"></canvas>
                 </div>
             </div>
+        </div>
 
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-user"></i> Agen Teraktif</h3>
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                        <h3 class="card-title mb-2 mb-md-0"><i class="fas fa-user"></i> Agen Teraktif</h3>
+                        <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
+                            <label for="tanggal_agen" class="mr-2">Tanggal</label>
+                            <input type="text" name="tanggal_agen" id="tanggal_agen" class="form-control" value="{{ $tanggal_agen }}">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+                        </form>
                     </div>
                     <div class="card-body">
                         <canvas id="topAgenChart" height="200"></canvas>
                     </div>
                 </div>
-            </div>
+            </div>            
         </div>
     </div>
 
     @push('js')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+        <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
         <script>
+           $(function() {
+                $('#tanggal').daterangepicker({
+                    locale: {
+                        format: 'YYYY-MM-DD'
+                    },
+                    startDate: '{{ request('tanggal') ? explode(" - ", request('tanggal'))[0] : \Carbon\Carbon::now()->startOfMonth()->format("Y-m-d") }}',
+                    endDate: '{{ request('tanggal') ? explode(" - ", request('tanggal'))[1] : \Carbon\Carbon::now()->endOfMonth()->format("Y-m-d") }}'
+                });
+            });
+            $(function () {
+                let defaultStart = '{{ request('tanggal') ? explode(" - ", request('tanggal'))[0] : \Carbon\Carbon::now()->startOfMonth()->format("Y-m-d") }}';
+                let defaultEnd = '{{ request('tanggal') ? explode(" - ", request('tanggal'))[1] : \Carbon\Carbon::now()->endOfMonth()->format("Y-m-d") }}';
+
+                $('#tanggal_barang').daterangepicker({
+                    locale: { format: 'YYYY-MM-DD' },
+                    startDate: "{{ explode(' - ', $tanggal_barang)[0] }}",
+                    endDate: "{{ explode(' - ', $tanggal_barang)[1] }}"
+                });
+
+                $('#tanggal_agen').daterangepicker({
+                    locale: { format: 'YYYY-MM-DD' },
+                    startDate: "{{ explode(' - ', $tanggal_agen)[0] }}",
+                    endDate: "{{ explode(' - ', $tanggal_agen)[1] }}"
+    
+                });
+            });
             document.addEventListener('DOMContentLoaded', function() {
                 const transaksiChart = new Chart(document.getElementById('transaksiChart').getContext('2d'), {
                     type: 'line',
@@ -192,13 +250,13 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         indexAxis: 'y',
-                        onClick: function (event, elements) {
-                            if (elements.length > 0) {
-                                const index = elements[0].index;
-                                const agenId = agenIds[index];
-                                window.location.href = `/agen/${agenId}/show`;
-                            }
-                        },
+                        // onClick: function (event, elements) {
+                        //     if (elements.length > 0) {
+                        //         const index = elements[0].index;
+                        //         const agenId = agenIds[index];
+                        //         window.location.href = `/agen/${agenId}/show`;
+                        //     }
+                        // },
                         scales: {
                             x: {
                                 beginAtZero: true

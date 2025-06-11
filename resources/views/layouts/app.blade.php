@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
     <style>
         /* Tambahkan style custom seperti di pertanyaan */
         .custom-sidebar {
@@ -147,6 +149,9 @@
     <script src="{{ asset('adminlte/plugins/jquery-validation/additional-methods.min.js') }}"></script>
     <script src="{{ asset('adminlte/dist/js/adminlte.min.js') }}"></script>
     <script src="{{ asset('adminlte/plugins/chart.js/Chart.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
     <script>
         // CSRF Token Setup
         $.ajaxSetup({
