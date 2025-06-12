@@ -136,7 +136,7 @@ $(document).ready(function() {
                 data: $(form).serialize(),
                 success: function(response) {
                     if(response.status){
-                        $('#modal-master').modal('hide');
+                        $('#agenModal').modal('hide');
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil',
