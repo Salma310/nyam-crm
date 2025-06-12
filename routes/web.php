@@ -45,11 +45,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/add', [AgenController::class, 'store']);
         Route::get('/{id}/edit', [AgenController::class, 'edit']);
         Route::put('/{id}/update', [AgenController::class, 'update']);
-        Route::put('/{id}/update_harga', [AgenController::class, 'update_harga'])->name('harga-agen.update');
-        Route::get('/{id}/show', [AgenController::class, 'show'])->name('agen.show');
-        Route::get('/{id}/delete', [AgenController::class, 'confirm']);
-        Route::delete('/{id}/delete', [AgenController::class, 'delete']);
-        // Route::put('/{id}/update_harga', [AgenController::class, 'update_harga']);
         Route::put('/{id}/update_harga', [AgenController::class, 'update_harga']);
         Route::get('/{id}/show', [AgenController::class, 'show'])->name('agen.show');
         Route::get('/{id}/delete', [AgenController::class, 'confirm']);
@@ -61,17 +56,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}/send-reminder', [AgenController::class, 'sendReminder'])->name('agen.sendReminder');
     });
 
-    // Route::group(['prefix' => 'barang'], function () {
-    //     Route::get('/', [BarangController::class, 'index']);              // menampilkan halaman awal barang
-    //     Route::post('/list', [BarangController::class, 'list']);          // menampilkan data barang dalam bentuk json untuk datatables
-    //     Route::get('/create', [BarangController::class, 'create']);       // menampilkan halaman form tambah barang
-    //     Route::post('/add', [BarangController::class, 'store']);
-    //     Route::get('/{id}/show', [BarangController::class, 'show']);            // menampilkan detail barang
-    //     Route::get('/{id}/edit', [BarangController::class, 'edit']);       // menampilkan halaman form edit barang
-    //     Route::put('/{id}/update', [BarangController::class, 'update']);          // menyimpan perubahan data barang
-    //     Route::get('/{id}/delete', [BarangController::class, 'confirm']);
-    //     Route::delete('/{id}/delete', [BarangController::class, 'delete']);
-    // });
     Route::prefix('barang')->group(function () {
         Route::get('/', [BarangController::class, 'index']);
         Route::post('/list', [BarangController::class, 'list']);
@@ -83,24 +67,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/delete', [BarangController::class, 'confirm']);
         Route::delete('/{id}/delete', [BarangController::class, 'delete']);
     });
-
-    // Route::group(['prefix' => 'transaksi'], function () {
-    //     Route::get('/', [TransaksiController::class, 'index']);
-    //     Route::post('/list', [TransaksiController::class, 'list']);
-    //     Route::get('/create', [TransaksiController::class, 'create']);
-    //     Route::post('/add', [TransaksiController::class, 'store']);
-    //     Route::get('/{id}/edit', [TransaksiController::class, 'edit']);
-    //     Route::put('/{id}/update', [TransaksiController::class, 'update']);
-    //     Route::get('/{id}/show', [TransaksiController::class, 'show']);
-    //     Route::get('/{id}/delete', [TransaksiController::class, 'confirm']);
-    //     Route::delete('/{id}/delete', [TransaksiController::class, 'delete']);
-    //     Route::get('/{id}', [TransaksiController::class, 'show']);
-    //     Route::delete('/{id}', [TransaksiController::class, 'destroy']);
-    //     // Route::get('/{id}/export_pdf', [TransaksiController::class, 'export_pdf']);
-    //     Route::get('/{id}/print', [TransaksiController::class, 'printInvoice']); // PDF invoice
-    //     Route::get('/{id}/send', [TransaksiController::class, 'sendInvoiceToWhapi']); // Send invoice
-    //     Route::get('/{id}/sendByEmail', [TransaksiController::class, 'sendInvoiceByEmail']); // Send invoice
-    // });
     
     Route::prefix('transaksi')->group(function () {
         Route::get('/', [TransaksiController::class, 'index']);
@@ -137,28 +103,4 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}/delete', [PurchaseController::class, 'delete']);
         Route::get('/{id}/print', [PurchaseController::class, 'printInvoice']);
     });
-
-    // Route::get('/transaksi', function () {
-    //     return view('transaksi.index');
-    // })->name('transaksi');
-
-    Route::get('/barang', function () {
-        return view('stok_barang.index');
-    })->name('barang');
-
-    // Route::get('/agen', function () {
-    //     return view('agen.index');
-    // })->name('agen');
-
-    Route::get('/history', function () {
-        return view('history.index');
-    })->name('history');
-
-    Route::get('/inbox', function () {
-        return view('inbox.index');
-    })->name('inbox');
-
-    Route::get('/profile', function () {
-        return view('profile.index');
-    })->name('profile');
 });
