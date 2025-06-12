@@ -188,7 +188,7 @@ class DashboardController extends Controller
         $end = Carbon::parse($tanggalAgen[1])->endOfDay();
 
         return Transaksi::whereBetween('tgl_transaksi', [$start, $end])
-            ->select('agen_id', DB::raw('COUNT(*) as total_transaksi'))
+            ->select('agen_id', DB::raw('SUM(harga_total) as total_transaksi'), DB::raw('COUNT(*) as jumlah_transaksi'))
             ->groupBy('agen_id')
             ->orderByDesc('total_transaksi')
             ->take(5)
@@ -198,10 +198,9 @@ class DashboardController extends Controller
                 return (object) [
                     'id' => $item->agen->agen_id ?? null,
                     'nama' => $item->agen->nama ?? '-',
-                    'total_transaksi' => $item->total_transaksi
+                    'total_transaksi' => $item->total_transaksi,
+                    'jumlah_transaksi' => $item->jumlah_transaksi
                 ];
             });
     }
-
-
 }

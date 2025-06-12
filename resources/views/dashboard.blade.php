@@ -82,16 +82,15 @@
                                     {{-- <li class="list-group-item"> --}}
                                     <li class="list-group-item d-flex justify-content-between align-items-start">
                                         <div>
-                                        <strong>{{ $agen->nama }}</strong><br>
-                                        <small>Terakhir transaksi:
-                                            {{ $agen->terakhir_transaksi ? \Carbon\Carbon::parse($agen->terakhir_transaksi)->format('d M Y') : 'Belum pernah' }}</small>
+                                            <strong>{{ $agen->nama }}</strong><br>
+                                            <small>Terakhir transaksi:
+                                                {{ $agen->terakhir_transaksi ? \Carbon\Carbon::parse($agen->terakhir_transaksi)->format('d M Y') : 'Belum pernah' }}</small>
                                         </div>
-                                        <button class="btn btn-sm btn-success kirim-wa-btn"
-                                            data-id="{{ $agen->id }}"
+                                        <button class="btn btn-sm btn-success kirim-wa-btn" data-id="{{ $agen->id }}"
                                             data-nama="{{ $agen->nama }}">
                                             <i class="fab fa-whatsapp"></i>
                                         </button>
-                                        </li>
+                                    </li>
                                 @endforeach
                             </ul>
                         @endif
@@ -101,34 +100,42 @@
         </div>
 
         @php
-            $tanggal_barang = request()->get('tanggal_barang', now()->startOfMonth()->format('Y-m-d') . ' - ' . now()->endOfMonth()->format('Y-m-d'));
-            $tanggal_agen = request()->get('tanggal_agen', now()->startOfMonth()->format('Y-m-d') . ' - ' . now()->endOfMonth()->format('Y-m-d'));
+            $tanggal_barang = request()->get(
+                'tanggal_barang',
+                now()->startOfMonth()->format('Y-m-d') . ' - ' . now()->endOfMonth()->format('Y-m-d'),
+            );
+            $tanggal_agen = request()->get(
+                'tanggal_agen',
+                now()->startOfMonth()->format('Y-m-d') . ' - ' . now()->endOfMonth()->format('Y-m-d'),
+            );
         @endphp
 
         <div class="row">
             <div class="col-md-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                    <h3 class="card-title mb-2 mb-md-0"><i class="fas fa-box"></i> Barang Terlaris</h3>
-                    <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
-                        <label for="tanggal_barang" class="mr-2">Tanggal</label>
-                        <input type="text" name="tanggal_barang" id="tanggal_barang" class="form-control" value="{{ $tanggal_barang }}">
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
-                    </form>
-                </div>
-                <div class="card-body">
-                    <canvas id="topBarangChart" height="200"></canvas>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                        <h3 class="card-title mb-2 mb-md-0"><i class="fas fa-box"></i> Barang Terlaris</h3>
+                        <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
+                            <label for="tanggal_barang" class="mr-2">Tanggal</label>
+                            <input type="text" name="tanggal_barang" id="tanggal_barang" class="form-control mr-2"
+                                value="{{ $tanggal_barang }}">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+                        </form>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="topBarangChart" height="200"></canvas>
+                    </div>
                 </div>
             </div>
-        </div>
 
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                        <h3 class="card-title mb-2 mb-md-0"><i class="fas fa-user"></i> Agen Teraktif</h3>
+                        <h3 class="card-title mb-2 mb-md-0"><i class="fas fa-user"></i> Top Agen</h3>
                         <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
                             <label for="tanggal_agen" class="mr-2">Tanggal</label>
-                            <input type="text" name="tanggal_agen" id="tanggal_agen" class="form-control" value="{{ $tanggal_agen }}">
+                            <input type="text" name="tanggal_agen" id="tanggal_agen" class="form-control mr-2"
+                                value="{{ $tanggal_agen }}">
                             <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
                         </form>
                     </div>
@@ -136,7 +143,7 @@
                         <canvas id="topAgenChart" height="200"></canvas>
                     </div>
                 </div>
-            </div>            
+            </div>
         </div>
     </div>
 
@@ -145,32 +152,39 @@
         <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
         <script>
-           $(function() {
+            $(function() {
                 $('#tanggal').daterangepicker({
                     locale: {
                         format: 'YYYY-MM-DD'
                     },
-                    startDate: '{{ request('tanggal') ? explode(" - ", request('tanggal'))[0] : \Carbon\Carbon::now()->startOfMonth()->format("Y-m-d") }}',
-                    endDate: '{{ request('tanggal') ? explode(" - ", request('tanggal'))[1] : \Carbon\Carbon::now()->endOfMonth()->format("Y-m-d") }}'
+                    startDate: '{{ request('tanggal') ? explode(' - ', request('tanggal'))[0] : \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d') }}',
+                    endDate: '{{ request('tanggal') ? explode(' - ', request('tanggal'))[1] : \Carbon\Carbon::now()->endOfMonth()->format('Y-m-d') }}'
                 });
             });
-            $(function () {
-                let defaultStart = '{{ request('tanggal') ? explode(" - ", request('tanggal'))[0] : \Carbon\Carbon::now()->startOfMonth()->format("Y-m-d") }}';
-                let defaultEnd = '{{ request('tanggal') ? explode(" - ", request('tanggal'))[1] : \Carbon\Carbon::now()->endOfMonth()->format("Y-m-d") }}';
+            $(function() {
+                let defaultStart =
+                    '{{ request('tanggal') ? explode(' - ', request('tanggal'))[0] : \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d') }}';
+                let defaultEnd =
+                    '{{ request('tanggal') ? explode(' - ', request('tanggal'))[1] : \Carbon\Carbon::now()->endOfMonth()->format('Y-m-d') }}';
 
                 $('#tanggal_barang').daterangepicker({
-                    locale: { format: 'YYYY-MM-DD' },
+                    locale: {
+                        format: 'YYYY-MM-DD'
+                    },
                     startDate: "{{ explode(' - ', $tanggal_barang)[0] }}",
                     endDate: "{{ explode(' - ', $tanggal_barang)[1] }}"
                 });
 
                 $('#tanggal_agen').daterangepicker({
-                    locale: { format: 'YYYY-MM-DD' },
+                    locale: {
+                        format: 'YYYY-MM-DD'
+                    },
                     startDate: "{{ explode(' - ', $tanggal_agen)[0] }}",
                     endDate: "{{ explode(' - ', $tanggal_agen)[1] }}"
-    
+
                 });
             });
             document.addEventListener('DOMContentLoaded', function() {
@@ -232,34 +246,49 @@
 
                 // new Chart(document.getElementById('topAgenChart').getContext('2d'), {
                 const ctx = document.getElementById('topAgenChart').getContext('2d');
-                const agenIds = @json($topAgen->pluck('id'));
-                const agenLabels = @json($topAgen->pluck('nama'));
-                const agenData = @json($topAgen->pluck('total_transaksi'));
+
+                const agenLabels = @json($topAgen->pluck('nama')->values());
+                const totalTransaksi = @json($topAgen->pluck('total_transaksi')->values());
+                const jumlahTransaksi = @json($topAgen->pluck('jumlah_transaksi')->values());
+
                 new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: @json($topAgen->pluck('nama')),
-                        // labels:agenIds,
+                        labels: agenLabels,
                         datasets: [{
-                            label: 'Jumlah Transaksi',
-                            data: @json($topAgen->pluck('total_transaksi')),
+                            label: 'Total Nilai Transaksi (Rp)',
+                            data: totalTransaksi,
                             backgroundColor: '#28a745'
                         }]
                     },
                     options: {
+                        indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
-                        indexAxis: 'y',
-                        // onClick: function (event, elements) {
-                        //     if (elements.length > 0) {
-                        //         const index = elements[0].index;
-                        //         const agenId = agenIds[index];
-                        //         window.location.href = `/agen/${agenId}/show`;
-                        //     }
-                        // },
                         scales: {
                             x: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'Rp ' + value.toLocaleString('id-ID');
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.parsed.x; // karena indexAxis: 'y'
+                                        const index = context.dataIndex;
+                                        const jumlah = jumlahTransaksi[index] ?? 0;
+
+                                        return [
+                                            'Total Transaksi: Rp ' + value.toLocaleString('id-ID'),
+                                            'Jumlah Transaksi: ' + jumlah + 'x'
+                                        ];
+                                    }
+                                }
                             }
                         }
                     }
@@ -267,9 +296,9 @@
 
                 // Kirim WhatsApp Button
                 document.querySelectorAll('.kirim-wa-btn').forEach(button => {
-                    button.addEventListener('click', function () {
+                    button.addEventListener('click', function() {
                         const agenId = this.dataset.id;
-                        console.log("Agen ID:", agenId); 
+                        console.log("Agen ID:", agenId);
                         const agenNama = this.dataset.nama;
 
                         Swal.fire({
@@ -284,23 +313,25 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 fetch(`/agen/${agenId}/send-reminder`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                    }
-                                })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.message) {
-                                        Swal.fire('Berhasil!', data.message, 'success');
-                                    } else {
-                                        Swal.fire('Gagal!', data.error || 'Terjadi kesalahan.', 'error');
-                                    }
-                                })
-                                .catch(() => {
-                                    Swal.fire('Gagal!', 'Gagal mengirim permintaan.', 'error');
-                                });
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.message) {
+                                            Swal.fire('Berhasil!', data.message, 'success');
+                                        } else {
+                                            Swal.fire('Gagal!', data.error ||
+                                                'Terjadi kesalahan.', 'error');
+                                        }
+                                    })
+                                    .catch(() => {
+                                        Swal.fire('Gagal!', 'Gagal mengirim permintaan.',
+                                            'error');
+                                    });
                             }
                         });
                     });
