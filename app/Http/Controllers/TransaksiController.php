@@ -50,29 +50,52 @@ class TransaksiController extends Controller
             'detailTransaksi' => $detailTransaksi
         ]);
     }
-
+    
     public function list(Request $request)
     {
-        $transaksi = Transaksi::with(['agen', 'detailTransaksi'])
-            ->orderByDesc('tgl_transaksi'); // <-- urutkan dari yang terbaru
+        $query = Transaksi::with(['agen', 'detailTransaksi'])
+            ->orderByDesc('tgl_transaksi');
 
-        return DataTables::of($transaksi)
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tgl_transaksi', [$request->start_date, $request->end_date]);
+        } else {
+            // Default ke transaksi bulan ini
+            $query->whereBetween('tgl_transaksi', [
+                now()->startOfMonth()->toDateString(),
+                now()->endOfMonth()->toDateString()
+            ]);
+        }
+
+        return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('nama_agen', function ($t) {
-                return $t->agen->nama ?? '-'; // atau ->nama, sesuai nama kolom kamu
-            })
-            ->addColumn('total_qty', function ($t) {
-                return $t->detailTransaksi->sum('qty');
-            })
-            ->addColumn('aksi', function ($t) {
-                $btn = '<button onclick="modalAction(\'' . url("transaksi/$t->transaksi_id/show") . '\')" class="btn btn-primary"><i class="fas fa-qrcode"></i> Detail</button> ';
-                // $btn .= '<button onclick="modalAction(\'' . url("transaksi/$t->transaksi_id/edit") . '\')" class="btn btn-info"><i class="fas fa-edit"></i> Edit</button> ';
-                // $btn .= '<button onclick="modalAction(\'' . url("transaksi/$t->transaksi_id/delete") . '\')" class="btn btn-danger"><i class="fas fa-trash"></i> Hapus</button> ';
-                return $btn;
-            })
+            ->addColumn('nama_agen', fn($t) => $t->agen->nama ?? '-')
+            ->addColumn('total_qty', fn($t) => $t->detailTransaksi->sum('qty'))
+            ->addColumn('aksi', fn($t) =>
+                '<button onclick="modalAction(\'' . url("transaksi/$t->transaksi_id/show") . '\')" class="btn btn-primary"><i class="fas fa-qrcode"></i> Detail</button>')
             ->rawColumns(['aksi'])
             ->make(true);
     }
+
+    // public function list(Request $request)
+    // {
+    //     $transaksi = Transaksi::with(['agen', 'detailTransaksi'])
+    //         ->orderByDesc('tgl_transaksi'); // <-- urutkan dari yang terbaru
+
+    //     return DataTables::of($transaksi)
+    //         ->addIndexColumn()
+    //         ->addColumn('nama_agen', function ($t) {
+    //             return $t->agen->nama ?? '-'; // atau ->nama, sesuai nama kolom kamu
+    //         })
+    //         ->addColumn('total_qty', function ($t) {
+    //             return $t->detailTransaksi->sum('qty');
+    //         })
+    //         ->addColumn('aksi', function ($t) {
+    //             $btn = '<button onclick="modalAction(\'' . url("transaksi/$t->transaksi_id/show") . '\')" class="btn btn-primary"><i class="fas fa-qrcode"></i> Detail</button> ';
+    //             return $btn;
+    //         })
+    //         ->rawColumns(['aksi'])
+    //         ->make(true);
+    // }
 
     public function create()
     {

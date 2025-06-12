@@ -189,6 +189,23 @@
                 </div>
             </div>
             <div class="table-container table-responsive mt-4">
+                <div class="filter-container mb-3 d-flex justify-content-start align-items-center">
+                    <div class="position-relative" style="max-width: 260px; width: 100%;">
+                        <input
+                            type="text"
+                            id="dateRange"
+                            class="form-control"
+                            style="padding-right: 40px; height: 45px; border-radius: 6px; background-color: #fff;"
+                            value="{{ \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d') }} - {{ \Carbon\Carbon::now()->endOfMonth()->format('Y-m-d') }}"
+                            autocomplete="off"
+                        />
+                        <span style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%);">
+                            <i class="fas fa-calendar-alt text-secondary" style="font-size: 16px;"></i>
+                        </span>
+                    </div>
+                </div>
+
+
                 <table class="table" id="transaksiTable">
                     <thead>
                         <tr>
@@ -222,8 +239,29 @@
             aria-labelledby="roleModalLabel" aria-hidden="true"></div>
 
         @push('js')
+            <!-- Daterangepicker -->
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+            <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
             <script>
                 var dataEvent;
+                let start = moment().startOf('month');
+                let end = moment().endOf('month');
+
+                // Inisialisasi daterangepicker
+                $('#dateRange').daterangepicker({
+                    startDate: start,
+                    endDate: end,
+                    locale: {
+                        format: 'YYYY-MM-DD'
+                    },
+                    opens: 'left'
+                }, function (startDate, endDate) {
+                    start = startDate;
+                    end = endDate;
+                    dataEvent.ajax.reload();
+                });
 
                 function modalAction(url = '') {
                     $('#myModal').load(url, function() {
@@ -239,8 +277,12 @@
                         lengthChange: false,
                         ajax: {
                             "url": "{{ url('transaksi/list') }}",
-                            "datatypes": "json",
-                            "type": "POST"
+                            // "datatypes": "json",
+                            "type": "POST",
+                            data: function (d) {
+                                d.start_date = start.format('YYYY-MM-DD');
+                                d.end_date = end.format('YYYY-MM-DD');
+                            }
                         },
                         columns: [{
                                 data: "DT_RowIndex",

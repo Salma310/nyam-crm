@@ -69,8 +69,8 @@ Route::middleware(['auth'])->group(function () {
     });
     
     Route::prefix('transaksi')->group(function () {
-        Route::get('/', [TransaksiController::class, 'index']);
-        Route::post('/list', [TransaksiController::class, 'list']);
+        Route::get('/', [TransaksiController::class, 'index'])->name('transindex');
+        Route::post('/list', [TransaksiController::class, 'list'])->name('translist');
         Route::get('/create', [TransaksiController::class, 'create']);
         Route::post('/add', [TransaksiController::class, 'store']);
         Route::get('/{id}/edit', [TransaksiController::class, 'edit']);
