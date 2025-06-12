@@ -408,7 +408,7 @@ class TransaksiController extends Controller
         }
 
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer sxu9WkZN6sMwFswMKVmFS4bI4Gpp0Uo1',
+            'Authorization' => 'Bearer klhIQczhtqcLcLeyI7XlvO6OWvB5yRc6',
         ])->attach(
             'media',
             file_get_contents($filePath),
