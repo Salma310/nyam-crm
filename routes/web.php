@@ -35,7 +35,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // 🔒 Protected Routes - Hanya jika sudah login
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/wablas-status', [DashboardController::class, 'getWablasStatus']);
+    Route::post('/dashboard/filter', [DashboardController::class, 'filter'])->name('dashboard.filter');
+    Route::post('/dashboard/filter-top-barang', [DashboardController::class, 'filterTopBarang'])->name('dashboard.filterTopBarang');
+    Route::post('/dashboard/filter-top-agen', [DashboardController::class, 'filterTopAgen'])->name('dashboard.filterTopAgen');
 
     // Agen
     Route::prefix('agen')->group(function () {
@@ -67,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/delete', [BarangController::class, 'confirm']);
         Route::delete('/{id}/delete', [BarangController::class, 'delete']);
     });
-    
+
     Route::prefix('transaksi')->group(function () {
         Route::get('/', [TransaksiController::class, 'index'])->name('transindex');
         Route::post('/list', [TransaksiController::class, 'list'])->name('translist');

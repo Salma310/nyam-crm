@@ -18,7 +18,7 @@ class DashboardController extends Controller
 
         $data = [];
 
-        
+
         if (!$filterChart || $filterChart === 'transaksi') {
             $startMonth = $request->get('start_month', now()->subMonths(11)->format('Y-m'));
             $endMonth = $request->get('end_month', now()->format('Y-m'));
@@ -113,7 +113,7 @@ class DashboardController extends Controller
                     'nama' => $agen->nama,
                     'terakhir_transaksi' => optional($agen->transaksi->first())->tgl_transaksi
                 ];
-        });
+            });
 
         return view('dashboard', [
             'totalRevenue' => $totalRevenue,
@@ -128,7 +128,56 @@ class DashboardController extends Controller
         ]);
     }
 
-    
+    public function filter(Request $request)
+    {
+        $startMonth = $request->input('start_month');
+        $endMonth = $request->input('end_month');
+
+        if (!$startMonth || !$endMonth) {
+            return response()->json([
+                'message' => 'Periode tidak valid.'
+            ], 422);
+        }
+
+        [$labels, $dataPoints] = $this->getMonthlyTransactionData($startMonth, $endMonth);
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $dataPoints,
+        ]);
+    }
+
+    public function filterTopBarang(Request $request)
+    {
+        $tanggalBarang = explode(' - ', $request->input('tanggal_barang'));
+        if (count($tanggalBarang) !== 2) {
+            return response()->json(['message' => 'Format tanggal tidak valid.'], 422);
+        }
+
+        $topBarang = $this->getTopBarang($tanggalBarang);
+
+        return response()->json([
+            'labels' => $topBarang->pluck('nama_barang'),
+            'data' => $topBarang->pluck('total_terjual'),
+        ]);
+    }
+
+    public function filterTopAgen(Request $request)
+    {
+        $tanggalAgen = explode(' - ', $request->input('tanggal_agen'));
+        if (count($tanggalAgen) !== 2) {
+            return response()->json(['message' => 'Format tanggal tidak valid.'], 422);
+        }
+
+        $topAgen = $this->getTopAgen($tanggalAgen);
+
+        return response()->json([
+            'labels' => $topAgen->pluck('nama'),
+            'data' => $topAgen->pluck('total_transaksi'),
+            'jumlah_transaksi' => $topAgen->pluck('jumlah_transaksi'),
+        ]);
+    }
+
     private function getMonthlyTransactionData($startMonth, $endMonth)
     {
         $start = Carbon::createFromFormat('Y-m', $startMonth)->startOfMonth();
@@ -166,8 +215,8 @@ class DashboardController extends Controller
         $end = Carbon::parse($tanggalBarang[1])->endOfDay();
 
         return DetailTransaksi::whereHas('transaksi', function ($query) use ($start, $end) {
-                $query->whereBetween('tgl_transaksi', [$start, $end]);
-            })
+            $query->whereBetween('tgl_transaksi', [$start, $end]);
+        })
             ->select('barang_id', DB::raw('SUM(qty) as total_terjual'))
             ->groupBy('barang_id')
             ->orderByDesc('total_terjual')

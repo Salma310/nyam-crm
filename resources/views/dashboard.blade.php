@@ -51,7 +51,7 @@
                         <div class="d-flex align-items-center mb-2 mb-md-0">
                             <h3 class="card-title mb-0 mr-3"><i class="fas fa-chart-line"></i> Transaksi per Bulan</h3>
                         </div>
-                        <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
+                        <div id="filterTransaksiForm" class="form-inline">
                             <label for="start_month" class="mr-2">Start</label>
                             <input type="month" name="start_month" id="start_month" class="form-control mr-2"
                                 value="{{ request('start_month', now()->subMonths(11)->format('Y-m')) }}">
@@ -59,8 +59,9 @@
                             <label for="end_month" class="mr-2">End</label>
                             <input type="month" name="end_month" id="end_month" class="form-control mr-2"
                                 value="{{ request('end_month', now()->format('Y-m')) }}">
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
-                        </form>
+                            <button type="button" id="filterTransaksiBtn" class="btn btn-primary"><i
+                                    class="fas fa-filter"></i> Filter</button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <canvas id="transaksiChart" height="200"></canvas>
@@ -115,12 +116,13 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                         <h3 class="card-title mb-2 mb-md-0"><i class="fas fa-box"></i> Barang Terlaris</h3>
-                        <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
+                        <form id="formFilterTopBarang" class="form-inline">
                             <label for="tanggal_barang" class="mr-2">Tanggal</label>
                             <input type="text" name="tanggal_barang" id="tanggal_barang" class="form-control mr-2"
                                 value="{{ $tanggal_barang }}">
                             <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
                         </form>
+
                     </div>
                     <div class="card-body">
                         <canvas id="topBarangChart" height="200"></canvas>
@@ -132,7 +134,7 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                         <h3 class="card-title mb-2 mb-md-0"><i class="fas fa-user"></i> Top Agen</h3>
-                        <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
+                        <form id="formFilterTopAgen" class="form-inline">
                             <label for="tanggal_agen" class="mr-2">Tanggal</label>
                             <input type="text" name="tanggal_agen" id="tanggal_agen" class="form-control mr-2"
                                 value="{{ $tanggal_agen }}">
@@ -187,48 +189,103 @@
 
                 });
             });
-            document.addEventListener('DOMContentLoaded', function() {
-                const transaksiChart = new Chart(document.getElementById('transaksiChart').getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: @json($labels),
-                        datasets: [{
-                            label: 'Jumlah Transaksi',
-                            data: @json($data),
-                            fill: true,
-                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                            borderColor: 'rgba(153, 102, 255, 1)',
-                            tension: 0.4,
-                            pointRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false
-                            },
-                            legend: {
-                                display: true
-                            }
-                        },
-                        interaction: {
-                            mode: 'nearest',
-                            axis: 'x',
-                            intersect: false
-                        }
-                    }
-                });
 
-                new Chart(document.getElementById('topBarangChart').getContext('2d'), {
+            $('#formFilterTopBarang').on('submit', function(e) {
+                e.preventDefault();
+                const tanggal = $('#tanggal_barang').val();
+
+                fetch("{{ route('dashboard.filterTopBarang') }}", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            tanggal_barang: tanggal
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(res => {
+                        renderTopBarangChart(res.labels, res.data);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Gagal memuat data barang.');
+                    });
+            });
+
+            $('#formFilterTopAgen').on('submit', function(e) {
+                e.preventDefault();
+                const tanggal = $('#tanggal_agen').val();
+
+                fetch("{{ route('dashboard.filterTopAgen') }}", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            tanggal_agen: tanggal
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(res => {
+                        renderTopAgenChart(res.labels, res.data, res.jumlah_transaksi);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Gagal memuat data agen.');
+                    });
+            });
+
+            let transaksiChartInstance;
+
+            function updateTransaksiChart(labels, data) {
+                if (transaksiChartInstance) {
+                    transaksiChartInstance.data.labels = labels;
+                    transaksiChartInstance.data.datasets[0].data = data;
+                    transaksiChartInstance.update();
+                }
+            }
+
+            document.getElementById('filterTransaksiBtn').addEventListener('click', function() {
+                const startMonth = document.getElementById('start_month').value;
+                const endMonth = document.getElementById('end_month').value;
+
+                fetch("{{ route('dashboard.filter') }}", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        },
+                        body: JSON.stringify({
+                            start_month: startMonth,
+                            end_month: endMonth
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        updateTransaksiChart(data.labels, data.data);
+                    })
+                    .catch(error => {
+                        console.error("Error filtering data:", error);
+                        alert("Gagal memuat data transaksi.");
+                    });
+            });
+
+            // === Top Barang Chart Re-initialization ===
+            let topBarangChart;
+            const topBarangCtx = document.getElementById('topBarangChart').getContext('2d');
+
+            function renderTopBarangChart(labels, data) {
+                if (topBarangChart) topBarangChart.destroy();
+                topBarangChart = new Chart(topBarangCtx, {
                     type: 'bar',
                     data: {
-                        labels: @json($topBarang->pluck('nama_barang')),
+                        labels: labels,
                         datasets: [{
                             label: 'Jumlah Terjual',
-                            data: @json($topBarang->pluck('total_terjual')),
+                            data: data,
                             backgroundColor: '#007bff'
                         }]
                     },
@@ -243,21 +300,21 @@
                         }
                     }
                 });
+            }
 
-                // new Chart(document.getElementById('topAgenChart').getContext('2d'), {
-                const ctx = document.getElementById('topAgenChart').getContext('2d');
+            // === Top Agen Chart Re-initialization ===
+            let topAgenChart;
+            const topAgenCtx = document.getElementById('topAgenChart').getContext('2d');
 
-                const agenLabels = @json($topAgen->pluck('nama')->values());
-                const totalTransaksi = @json($topAgen->pluck('total_transaksi')->values());
-                const jumlahTransaksi = @json($topAgen->pluck('jumlah_transaksi')->values());
-
-                new Chart(ctx, {
+            function renderTopAgenChart(labels, data, jumlahTransaksi) {
+                if (topAgenChart) topAgenChart.destroy();
+                topAgenChart = new Chart(topAgenCtx, {
                     type: 'bar',
                     data: {
-                        labels: agenLabels,
+                        labels: labels,
                         datasets: [{
                             label: 'Total Nilai Transaksi (Rp)',
-                            data: totalTransaksi,
+                            data: data,
                             backgroundColor: '#28a745'
                         }]
                     },
@@ -279,10 +336,9 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        const value = context.parsed.x; // karena indexAxis: 'y'
+                                        const value = context.parsed.x;
                                         const index = context.dataIndex;
                                         const jumlah = jumlahTransaksi[index] ?? 0;
-
                                         return [
                                             'Total Transaksi: Rp ' + value.toLocaleString('id-ID'),
                                             'Jumlah Transaksi: ' + jumlah + 'x'
@@ -293,7 +349,46 @@
                         }
                     }
                 });
+            }
 
+            // Simpan instansi Chart ke variabel global agar bisa diupdate
+            transaksiChartInstance = new Chart(document.getElementById('transaksiChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: @json($labels),
+                    datasets: [{
+                        label: 'Jumlah Transaksi',
+                        data: @json($data),
+                        fill: true,
+                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        tension: 0.4,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        legend: {
+                            display: true
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+            document.addEventListener('DOMContentLoaded', function() {
+                renderTopBarangChart(@json($topBarang->pluck('nama_barang')), @json($topBarang->pluck('total_terjual')));
+                renderTopAgenChart(@json($topAgen->pluck('nama')), @json($topAgen->pluck('total_transaksi')),
+                    @json($topAgen->pluck('jumlah_transaksi')));
                 // Kirim WhatsApp Button
                 document.querySelectorAll('.kirim-wa-btn').forEach(button => {
                     button.addEventListener('click', function() {
