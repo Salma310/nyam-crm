@@ -114,12 +114,20 @@
                 border-spacing: 0 10px;
             }
 
-            .content .table-container table thead {
-                background-color: #f4f7f6;
+            .content .table-container table thead tr th {
+                background-color: #FFC36B;
+                font-weight: 600;
             }
 
+             .content .table-container table thead tr th:first-child {
+                border-top-left-radius: 12px;
+            }
+
+            .content .table-container table thead tr th:last-child {
+                border-top-right-radius: 12px;
+            }
             .content .table-container table th {
-                padding: 15px;
+                padding: 25px;
                 text-align: left;
                 font-weight: 600;
                 color: #2c3e50;

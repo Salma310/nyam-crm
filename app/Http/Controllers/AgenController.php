@@ -43,9 +43,9 @@ class AgenController extends Controller
         return DataTables::of($agen)
             ->addIndexColumn()
             ->addColumn('aksi', function ($agen) { // menambahkan kolom aksi
-                $btn = '<button onclick="modalAction(\'' . url("agen/$agen->agen_id/show") . '\')" class="btn btn-primary"><i class="fas fa-qrcode"></i> Detail</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url("agen/$agen->agen_id/edit") . '\')" class="btn btn-info"><i class="fas fa-edit"></i> Edit</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url("agen/$agen->agen_id/delete") . '\')" class="btn btn-danger"><i class="fas fa-trash"></i> Hapus</button> ';
+                $btn = '<button onclick="modalAction(\'' . url("agen/$agen->agen_id/show") . '\')" class="btn btn-outline-primary"><i class="fas fa-qrcode"></i> Detail</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url("agen/$agen->agen_id/edit") . '\')" class="btn btn-outline-info"><i class="fas fa-edit"></i> Edit</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url("agen/$agen->agen_id/delete") . '\')" class="btn btn-outline-danger"><i class="fas fa-trash"></i> Hapus</button> ';
                 return $btn;
             })
             ->rawColumns(['aksi']) // memberitahu bahwa kolom aksi adalah HTML

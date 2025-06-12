@@ -26,11 +26,11 @@ class BarangController extends Controller
             ->addIndexColumn()
             ->addColumn('aksi', function ($barang) {
                 $btn  = '<button onclick="modalAction(\'' . url('/barang/' . $barang->barang_id .
-                    '/show') . '\')" class="btn btn-primary"><i class="fas fa-qrcode"></i> Detail</button> ';
+                    '/show') . '\')" class="btn btn-outline-primary"><i class="fas fa-qrcode"></i> Detail</button> ';
                 $btn .= '<button onclick="modalAction(\'' . url('/barang/' . $barang->barang_id .
-                    '/edit') . '\')" class="btn btn-info"><i class="fas fa-edit"></i> Edit</button> ';
+                    '/edit') . '\')" class="btn btn-outline-info"><i class="fas fa-edit"></i> Edit</button> ';
                 $btn .= '<button onclick="modalAction(\'' . url('/barang/' . $barang->barang_id .
-                    '/delete') . '\')" class="btn btn-danger"><i class="fas fa-trash"></i> Hapus</button> ';
+                    '/delete') . '\')" class="btn btn-outline-danger"><i class="fas fa-trash"></i> Hapus</button> ';
                 return $btn;
             })
             ->rawColumns(['aksi']) // memberitahu bahwa kolom aksi adalah html

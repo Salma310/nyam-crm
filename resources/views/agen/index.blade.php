@@ -114,12 +114,21 @@
                 border-spacing: 0 10px;
             }
 
-            .content .table-container table thead {
-                background-color: #f4f7f6;
+            .content .table-container table thead tr th {
+                background-color: #FFC36B;
+                font-weight: 600;
+            }
+
+            .content .table-container table thead tr th:first-child {
+                border-top-left-radius: 12px;
+            }
+
+            .content .table-container table thead tr th:last-child {
+                border-top-right-radius: 12px;
             }
 
             .content .table-container table th {
-                padding: 15px;
+                padding: 25px;
                 text-align: left;
                 font-weight: 600;
                 color: #2c3e50;
@@ -189,16 +198,16 @@
                 </div>
             </div>
             <div class="table-container table-responsive mt-4">
-                {{-- <div class="d-flex flex-row justify-content-start">
-                    <label class="mr-3 mt-1">Filter: </label>
-                    <select id="kota" name="kota" class="form-control form-control mb-2 d-inline filter_jenis_event">
+                <div class="d-flex flex-row justify-content-start">
+                    <label for="kota"  class="mr-3 mt-1" style="font-size: 16px;">Filter Kota: </label>
+                    <select id="kota" name="kota" class="form-control form-control mb-2 d-inline filter_jenis_event" style="font-size: 16px;">
                         <option value="">- Semua -</option>
-                        @foreach ($daftarKota as $kota)
-                            <option value="{{$kota}}">{{ $kota }}</option>
+                        @foreach ($daftarKota as $k)
+                            <option value="{{ $k }}">{{ $k }}</option>
                         @endforeach
                     </select>
-                </div> --}}
-                <table class="table" id="agenTable">
+                </div>
+                <table class="table mt-2" id="agenTable">
                     <thead>
                         <tr>
                             <th>
@@ -227,8 +236,6 @@
                 </table>
             </div>
         </div>
-        {{-- <div class="modal fade show" id="agenModal" tabindex="-1" role="dialog" data-backdrop="static"
-            aria-labelledby="roleModalLabel" aria-hidden="true"></div> --}}
         <div class="modal fade show" id="agenModal" tabindex="-1" role="dialog" data-backdrop="static"
             aria-labelledby="roleModalLabel" aria-hidden="true"></div>
 
@@ -243,6 +250,10 @@
                 }
 
                 $(document).ready(function() {
+                    $('#kota').on('change', function () {
+                        dataAgen.ajax.reload();
+                    });
+
                     dataAgen = $('#agenTable').DataTable({
                         processing: true,
                         serverSide: true,
