@@ -19,46 +19,82 @@ use App\Http\Controllers\PurchaseController;
 |
 */
 
+// 🔓 Route untuk Landing Page (Terbuka)
+Route::get('/', function () {
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : view('landing'); // <- buat file resources/views/landing.blade.php
+})->name('landing');
+
+// 🔐 Auth Routes (login/logout/ubah-password)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/ubah-password', [AuthController::class, 'ubahPassword'])->name('ubah-password');
+Route::post('/ubahpassword', [AuthController::class, 'ubahPassword'])->name('ubah-password');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// 🔒 Protected Routes - Hanya jika sudah login
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/wablas-status', [DashboardController::class, 'getWablasStatus']);
 
-    Route::group(['prefix' => 'agen'], function () {
+    // Agen
+    Route::prefix('agen')->group(function () {
         Route::get('/', [AgenController::class, 'index']);
         Route::post('/list', [AgenController::class, 'list']);
         Route::get('/create', [AgenController::class, 'create']);
         Route::post('/add', [AgenController::class, 'store']);
         Route::get('/{id}/edit', [AgenController::class, 'edit']);
         Route::put('/{id}/update', [AgenController::class, 'update']);
-        // Route::put('/{id}/update_harga', [AgenController::class, 'update_harga']);
         Route::put('/{id}/update_harga', [AgenController::class, 'update_harga'])->name('harga-agen.update');
         Route::get('/{id}/show', [AgenController::class, 'show'])->name('agen.show');
         Route::get('/{id}/delete', [AgenController::class, 'confirm']);
         Route::delete('/{id}/delete', [AgenController::class, 'delete']);
-        Route::get('/{id}', [AgenController::class, 'show']);
-        Route::delete('/{id}', [AgenController::class, 'destroy']);
         Route::get('/{id}/export_pdf', [AgenController::class, 'export_pdf']);
         Route::post('/{id}/send-reminder', [AgenController::class, 'sendReminder'])->name('agen.sendReminder');
     });
 
-    Route::group(['prefix' => 'barang'], function () {
-        Route::get('/', [BarangController::class, 'index']);              // menampilkan halaman awal barang
-        Route::post('/list', [BarangController::class, 'list']);          // menampilkan data barang dalam bentuk json untuk datatables
-        Route::get('/create', [BarangController::class, 'create']);       // menampilkan halaman form tambah barang
+    // Route::group(['prefix' => 'barang'], function () {
+    //     Route::get('/', [BarangController::class, 'index']);              // menampilkan halaman awal barang
+    //     Route::post('/list', [BarangController::class, 'list']);          // menampilkan data barang dalam bentuk json untuk datatables
+    //     Route::get('/create', [BarangController::class, 'create']);       // menampilkan halaman form tambah barang
+    //     Route::post('/add', [BarangController::class, 'store']);
+    //     Route::get('/{id}/show', [BarangController::class, 'show']);            // menampilkan detail barang
+    //     Route::get('/{id}/edit', [BarangController::class, 'edit']);       // menampilkan halaman form edit barang
+    //     Route::put('/{id}/update', [BarangController::class, 'update']);          // menyimpan perubahan data barang
+    //     Route::get('/{id}/delete', [BarangController::class, 'confirm']);
+    //     Route::delete('/{id}/delete', [BarangController::class, 'delete']);
+    // });
+    Route::prefix('barang')->group(function () {
+        Route::get('/', [BarangController::class, 'index']);
+        Route::post('/list', [BarangController::class, 'list']);
+        Route::get('/create', [BarangController::class, 'create']);
         Route::post('/add', [BarangController::class, 'store']);
-        Route::get('/{id}/show', [BarangController::class, 'show']);            // menampilkan detail barang
-        Route::get('/{id}/edit', [BarangController::class, 'edit']);       // menampilkan halaman form edit barang
-        Route::put('/{id}/update', [BarangController::class, 'update']);          // menyimpan perubahan data barang
+        Route::get('/{id}/show', [BarangController::class, 'show']);
+        Route::get('/{id}/edit', [BarangController::class, 'edit']);
+        Route::put('/{id}/update', [BarangController::class, 'update']);
         Route::get('/{id}/delete', [BarangController::class, 'confirm']);
         Route::delete('/{id}/delete', [BarangController::class, 'delete']);
     });
 
-    Route::group(['prefix' => 'transaksi'], function () {
+    // Route::group(['prefix' => 'transaksi'], function () {
+    //     Route::get('/', [TransaksiController::class, 'index']);
+    //     Route::post('/list', [TransaksiController::class, 'list']);
+    //     Route::get('/create', [TransaksiController::class, 'create']);
+    //     Route::post('/add', [TransaksiController::class, 'store']);
+    //     Route::get('/{id}/edit', [TransaksiController::class, 'edit']);
+    //     Route::put('/{id}/update', [TransaksiController::class, 'update']);
+    //     Route::get('/{id}/show', [TransaksiController::class, 'show']);
+    //     Route::get('/{id}/delete', [TransaksiController::class, 'confirm']);
+    //     Route::delete('/{id}/delete', [TransaksiController::class, 'delete']);
+    //     Route::get('/{id}', [TransaksiController::class, 'show']);
+    //     Route::delete('/{id}', [TransaksiController::class, 'destroy']);
+    //     // Route::get('/{id}/export_pdf', [TransaksiController::class, 'export_pdf']);
+    //     Route::get('/{id}/print', [TransaksiController::class, 'printInvoice']); // PDF invoice
+    //     Route::get('/{id}/send', [TransaksiController::class, 'sendInvoiceToWhapi']); // Send invoice
+    //     Route::get('/{id}/sendByEmail', [TransaksiController::class, 'sendInvoiceByEmail']); // Send invoice
+    // });
+    
+    Route::prefix('transaksi')->group(function () {
         Route::get('/', [TransaksiController::class, 'index']);
         Route::post('/list', [TransaksiController::class, 'list']);
         Route::get('/create', [TransaksiController::class, 'create']);
@@ -68,12 +104,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/show', [TransaksiController::class, 'show']);
         Route::get('/{id}/delete', [TransaksiController::class, 'confirm']);
         Route::delete('/{id}/delete', [TransaksiController::class, 'delete']);
-        Route::get('/{id}', [TransaksiController::class, 'show']);
-        Route::delete('/{id}', [TransaksiController::class, 'destroy']);
-        // Route::get('/{id}/export_pdf', [TransaksiController::class, 'export_pdf']);
-        Route::get('/{id}/print', [TransaksiController::class, 'printInvoice']); // PDF invoice
-        Route::get('/{id}/send', [TransaksiController::class, 'sendInvoiceToWhapi']); // Send invoice
-        Route::get('/{id}/sendByEmail', [TransaksiController::class, 'sendInvoiceByEmail']); // Send invoice
+        Route::get('/{id}/print', [TransaksiController::class, 'printInvoice']);
+        Route::get('/{id}/send', [TransaksiController::class, 'sendInvoiceToWhapi']);
+        Route::get('/{id}/sendByEmail', [TransaksiController::class, 'sendInvoiceByEmail']);
     });
 
     Route::get('/harga-agen/{agen_id}/{barang_id}', function ($agen_id, $barang_id) {
