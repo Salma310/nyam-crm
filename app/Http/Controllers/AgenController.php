@@ -119,19 +119,10 @@ class AgenController extends Controller
         return redirect('/');
     }
 
-    // public function show($id)
-    // {
-    //     $agen = Agen::findOrFail($id);
-    //     return response()->json($agen);
-    // }
-
     public function show($id)
     {
         // Ambil data agen dengan relasi hargaAgen dan transaksi + detail transaksi + barang
         $agen = Agen::with([
-            // 'hargaAgen' => function ($q) {
-            //     $q->whereNotNull('id'); // pastikan hanya data valid
-            // },
             'hargaAgen.barang',
             'transaksi.detailTransaksi.barang'
         ])->findOrFail($id);
@@ -149,22 +140,39 @@ class AgenController extends Controller
 
     public function update_harga(Request $request, $id)
     {
-        $request->validate([
-            'harga' => 'required|numeric|min:0',
-            'diskon' => 'required|numeric|min:0',
-            'diskon_persen' => 'required|numeric|min:0',
-        ]);
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'harga' => 'required|numeric|min:0',
+                'diskon' => 'required|numeric|min:0',
+                'diskon_persen' => 'required|numeric|min:0',
+            ];
 
-        $hargaAgen = HargaAgen::findOrFail($id);
-        $hargaAgen->harga = $request->harga;
-        $hargaAgen->diskon = $request->diskon;
-        $hargaAgen->diskon_persen = $request->diskon_persen;
+            $validator = Validator::make($request->all(), $rules);
 
-        $hargaAgen->save();
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false, // respon json, true: berhasil, false: gagal
+                    'message' => 'Validasi gagal.',
+                    'msgField' => $validator->errors() // menunjukkan field mana yang error
+                ]);
+            }
 
-        return back()->with('success', 'Harga dan diskon berhasil diperbarui.');
+            $check = HargaAgen::find($id);
+
+            if ($check) {
+                $check->update($request->all());
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil diupdate'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data tidak ditemukan'
+                ]);
+            }
+        }
     }
-
 
     public function edit($id)
     {
@@ -222,12 +230,56 @@ class AgenController extends Controller
         return redirect('/');
     }
 
-    public function destroy($id)
+    public function confirm(string $agen_id)
+    {
+        $agen = Agen::find($agen_id);
+        return view('agen.confirm', ['agen' => $agen],);
+    }
+
+    public function delete($id)
     {
         $agen = Agen::findOrFail($id);
+
+        // Cek apakah agen memiliki relasi dengan transaksi atau harga_agen
+        $relatedTransaksi = $agen->transaksi()->exists();
+        $relatedHarga = $agen->hargaAgen()->exists();
+
+        if ($relatedTransaksi || $relatedHarga) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data agen tidak bisa dihapus karena masih terhubung dengan data transaksi atau harga produk.'
+            ]);
+        }
+
         $agen->delete();
 
-        return response()->json(['message' => 'Agen berhasil dihapus.']);
+        return response()->json([
+            'status' => true,
+            'message' => 'Agen berhasil dihapus.'
+        ]);
+    }
+
+    public function forceDelete($id)
+    {
+        $agen = Agen::findOrFail($id);
+
+        try {
+            DB::transaction(function () use ($agen) {
+                $agen->transaksi()->delete();      // hapus semua transaksi terkait
+                $agen->hargaAgen()->delete();      // hapus semua harga agen terkait
+                $agen->delete();                   // hapus agen
+            });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Agen beserta data terkait berhasil dihapus.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal menghapus agen: ' . $e->getMessage()
+            ]);
+        }
     }
 
     public function sendReminder($id)
