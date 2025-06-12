@@ -227,18 +227,18 @@
                 </table>
             </div>
         </div>
-        {{-- <div class="modal fade show" id="myModal" tabindex="-1" role="dialog" data-backdrop="static"
+        {{-- <div class="modal fade show" id="agenModal" tabindex="-1" role="dialog" data-backdrop="static"
             aria-labelledby="roleModalLabel" aria-hidden="true"></div> --}}
-        <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div>
-
+        <div class="modal fade show" id="agenModal" tabindex="-1" role="dialog" data-backdrop="static"
+            aria-labelledby="roleModalLabel" aria-hidden="true"></div>
 
         @push('js')
             <script>
                 var dataAgen;
 
                 function modalAction(url = '') {
-                    $('#myModal').load(url, function() {
-                        $('#myModal').modal('show');
+                    $('#agenModal').load(url, function() {
+                        $('#agenModal').modal('show');
                     });
                 }
 
