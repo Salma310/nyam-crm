@@ -114,12 +114,20 @@
                 border-spacing: 0 10px;
             }
 
-            .content .table-container table thead {
-                background-color: #f4f7f6;
+            .content .table-container table thead tr th {
+                background-color: #FFC36B;
+                font-weight: 600;
             }
 
+             .content .table-container table thead tr th:first-child {
+                border-top-left-radius: 12px;
+            }
+
+            .content .table-container table thead tr th:last-child {
+                border-top-right-radius: 12px;
+            }
             .content .table-container table th {
-                padding: 15px;
+                padding: 25px;
                 text-align: left;
                 font-weight: 600;
                 color: #2c3e50;
@@ -189,6 +197,21 @@
                 </div>
             </div>
             <div class="table-container table-responsive mt-4">
+                <div class="filter-container mb-3 d-flex justify-content-start align-items-center">
+                    <div class="position-relative" style="max-width: 260px; width: 100%;">
+                        <input
+                            type="text"
+                            id="dateRange"
+                            class="form-control"
+                            style="padding-right: 40px; height: 45px; border-radius: 6px; background-color: #fff;"
+                            value="{{ \Carbon\Carbon::now()->startOfMonth()->format('Y-m-d') }} - {{ \Carbon\Carbon::now()->endOfMonth()->format('Y-m-d') }}"
+                            autocomplete="off"
+                        />
+                        <span style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%);">
+                            <i class="fas fa-calendar-alt text-secondary" style="font-size: 16px;"></i>
+                        </span>
+                    </div>
+                </div>
                 <table class="table" id="purchaseTable">
                     <thead>
                         <tr>
@@ -222,8 +245,28 @@
             aria-labelledby="roleModalLabel" aria-hidden="true"></div>
 
         @push('js')
+          <!-- Daterangepicker -->
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+            <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
             <script>
                 var dataPurchase;
+                let start = moment().startOf('month');
+                let end = moment().endOf('month');
+
+                $('#dateRange').daterangepicker({
+                    startDate: start,
+                    endDate: end,
+                    locale: {
+                        format: 'YYYY-MM-DD'
+                    },
+                    opens: 'left'
+                }, function (startDate, endDate) {
+                    start = startDate;
+                    end = endDate;
+                    dataPurchase.ajax.reload();
+                });
 
                 function modalAction(url = '') {
                     $('#myModal').load(url, function() {
@@ -239,8 +282,12 @@
                         lengthChange: false,
                         ajax: {
                             "url": "{{ url('purchase/list') }}",
-                            "datatypes": "json",
-                            "type": "POST"
+                            // "datatypes": "json",
+                            "type": "POST",
+                            data: function (d) {
+                                d.start_date = start.format('YYYY-MM-DD');
+                                d.end_date = end.format('YYYY-MM-DD');
+                            }
                         },  
                         columns: [{
                                 data: "DT_RowIndex",

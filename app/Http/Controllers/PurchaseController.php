@@ -44,6 +44,16 @@ class PurchaseController extends Controller
     {
         $purchase = Purchase::with(['detailPurchase', 'detailPurchase.barang'])->orderByDesc('tgl_transaksi');;
 
+         if ($request->filled('start_date') && $request->filled('end_date')) {
+            $purchase->whereBetween('tgl_transaksi', [$request->start_date, $request->end_date]);
+        } else {
+            // Default ke transaksi bulan ini
+            $purchase->whereBetween('tgl_transaksi', [
+                now()->startOfMonth()->toDateString(),
+                now()->endOfMonth()->toDateString()
+            ]);
+        }
+
         return DataTables::of($purchase)
             ->addIndexColumn()
             ->addColumn('nama_barang', function ($t) {
