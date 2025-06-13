@@ -118,7 +118,7 @@
 
         .hero-image img {
             width: 100%;
-            max-width: 600px;
+            max-width: 1000px;
             border-radius: 20px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, .1);
             animation: float 3s ease-in-out infinite;
@@ -263,7 +263,7 @@
 
 <body>
 
-    <header>
+    {{-- <header>
         <img src="{{ asset('logo.png') }}" alt="Nyam Logo" class="logo">
         <nav class="main-nav">
             <a href="#home">Home</a>
@@ -293,6 +293,119 @@
             pengingat, dan membantu memaksimalkan potensi penjualan secara berkelanjutan.</p>
         <p>Semua fitur seperti: <strong>Transaksi Penjualan, Pembelian, Produk/Stok, Data Agen, dan Analisis
                 Dashboard</strong> sudah terintegrasi dalam satu sistem yang user-friendly dan efisien.</p>
+    </section> --}}
+    <header>
+        <img src="{{ asset('logo.png') }}" alt="Nyam Logo" class="logo">
+        <nav class="main-nav">
+            <a href="#home">Home</a>
+            <a href="#about">Tentang</a>
+            <a href="#visi">Visi & Misi</a>
+            <a href="#product">Produk</a>
+            <a href="#team">Tim</a>
+        </nav>
+        <a href="{{ route('login') }}" class="btn-login">Masuk</a>
+    </header>
+
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Nyam CRM untuk Agen & Cemilan Sehat</h1>
+            <p>Satu platform praktis untuk mengelola bisnis agen cemilan sehat, mulai dari transaksi hingga analisis
+                penjualan.</p>
+            <div class="cta"><a href="{{ route('login') }}">Mulai Sekarang!</a></div>
+        </div>
+        <div class="hero-image"><img src="{{ asset('img/nyambaby.jpg') }}" alt="Nyam Product"></div>
+    </section>
+
+    <section class="about" id="about">
+        <h2 class="section-title">Tentang Nyam</h2>
+        <p>Nyam CRM adalah sistem manajemen bisnis UMKM yang membantu mengelola transaksi penjualan, pembelian, stok
+            produk, dan data agen secara otomatis.</p>
+        <p>Dengan fitur dashboard interaktif, pemilik bisnis dapat memantau pendapatan, produk terlaris, serta aktivitas
+            agen secara real-time. Sistem CRM dapat menampilkan pola pembelian agen, memberikan notifikasi
+            pengingat, dan membantu memaksimalkan potensi penjualan secara berkelanjutan.</p>
+        <p>Semua fitur seperti: <strong>Transaksi Penjualan, Pembelian, Produk/Stok, Data Agen, dan Analisis
+                Dashboard</strong> sudah terintegrasi dalam satu sistem yang user-friendly dan efisien.</p>
+    </section>
+
+
+
+    {{-- <section class="visi" id="visi"
+        style="background: linear-gradient(135deg, #fff0f5, #ffe5ec); padding: 4rem 2rem;">
+        <h2 class="section-title" style="color: #ff5c5c; margin-bottom: 3rem;">Visi & Misi</h2>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;">
+            <div
+                style="
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 2rem; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15); 
+            width: 300px;
+            transition: transform 0.3s ease;
+            ">
+                <h3 style="color: #ff5c5c; text-align: center; margin-bottom: 1rem;">Visi</h3>
+                <p style="text-align: center;">Menjadi penyedia cemilan sehat pilihan utama bagi anak dan keluarga.</p>
+            </div>
+
+            <div
+                style="
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 2rem; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15); 
+            width: 300px;
+            transition: transform 0.3s ease;
+            ">
+                <h3 style="color: #ff5c5c; text-align: center; margin-bottom: 1rem;">Misi</h3>
+                <p style="text-align: center;">Menghadirkan produk sehat berkualitas, memperluas jaringan agen UMKM,
+                    serta membantu pertumbuhan ekonomi lokal melalui sistem CRM modern.</p>
+            </div>
+        </div>
+    </section> --}}
+
+    <section class="visi" id="visi"
+        style="background: linear-gradient(135deg, #fff0f5, #ffe5ec); padding: 4rem 2rem;">
+        <h2 class="section-title" style="color: #ff5c5c; margin-bottom: 3rem;">Visi & Misi</h2>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;">
+            <!-- Visi Card -->
+            <div style="
+            background: linear-gradient(145deg, #ffeaea, #fff6f6);
+            padding: 2.5rem; 
+            border-radius: 30px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            width: 320px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        "
+                onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.2)'"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)'">
+                {{-- <img src="{{ asset('img/visi.png') }}" alt="Visi Icon" style="width: 60px; margin-bottom: 1rem;"> --}}
+                <h3 style="color: #ff5c5c; font-weight: 700; margin-bottom: 1rem;">Visi</h3>
+                <p style="font-size: 1rem; color: #333;">Menjadi penyedia cemilan sehat pilihan utama bagi anak dan
+                    keluarga.</p>
+            </div>
+
+            <!-- Misi Card -->
+            <div style="
+            background: linear-gradient(145deg, #ffeaea, #fff6f6);
+            padding: 2.5rem; 
+            border-radius: 30px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            width: 320px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        "
+                onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.2)'"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)'">
+                {{-- <img src="{{ asset('img/misi.png') }}" alt="Misi Icon" style="width: 60px; margin-bottom: 1rem;"> --}}
+                <h3 style="color: #ff5c5c; font-weight: 700; margin-bottom: 1rem;">Misi</h3>
+                <p style="font-size: 1rem; color: #333;">Menghadirkan produk sehat berkualitas, memperluas jaringan agen
+                    UMKM, serta membantu pertumbuhan ekonomi lokal melalui sistem CRM modern.</p>
+            </div>
+        </div>
     </section>
 
 
@@ -302,55 +415,97 @@
             <div class="product-track">
                 <!-- Produk diulang 2x agar looping -->
                 @for ($i = 0; $i < 2; $i++)
-                    <div class="product-card"><img src="{{ asset('img/chicken.jpg') }}" alt="Chicken Chips">
-                        <h3>Chicken Chips</h3>
-                        <p>Keripik ayam sehat tanpa MSG, kaya protein.</p>
+                    <div class="product-card"><img src="{{ asset('img/cikenpuding.jpg') }}" alt="Chicken Chips">
+                        <h3>Chicken Pudding</h3>
+                        <p>Pudding lembut yang terbuat dari daging ayam pilihan. Kalori 142kkal/50gr.</p>
                     </div>
-                    <div class="product-card"><img src="{{ asset('img/crunchy.jpg') }}" alt="Chicken Crunchy">
-                        <h3>Chicken Crunchy</h3>
-                        <p>Chicken Chips versi crunchy & renyah.</p>
+                    <div class="product-card"><img src="{{ asset('img/beefpuding.jpg') }}" alt="Chicken Crunchy">
+                        <h3>Beef Pudding</h3>
+                        <p>Pudding lembut yang terbuat dari daging sapi asli. Kalori 142kkal/50gr.</p>
                     </div>
                     <div class="product-card"><img src="{{ asset('img/panna.jpg') }}" alt="Panna Cotta">
-                        <h3>Panna Cotta</h3>
-                        <p>Snack creamy manis sehat ala Italia.</p>
+                        <h3>Pannababy</h3>
+                        <p>Snack creamy manis sehat ala Italia. Kalori 120kkal/80gr.</p>
                     </div>
-                    <div class="product-card"><img src="{{ asset('img/icecream.jpg') }}" alt="Ice Cream">
+                    <div class="product-card"><img src="{{ asset('img/ice.jpg') }}" alt="Ice Cream">
                         <h3>Ice Cream</h3>
-                        <p>Es krim sehat untuk anak & dewasa.</p>
+                        <p>Es krim sehat dengan berbagai protein hewani dan nabati. Kalori 200kkal/50gr, tanpa pengawet.
+                        </p>
                     </div>
-                    <div class="product-card"><img src="{{ asset('img/abon.jpg') }}" alt="Abon">
+                    <div class="product-card"><img src="{{ asset('img/abon.jpeg') }}" alt="Abon">
                         <h3>Abon</h3>
-                        <p>Abon protein tinggi bebas MSG.</p>
+                        <p>Abon protein tinggi bebas MSG. Kalori 142kkal/20gr, tanpa pengawet.</p>
                     </div>
-                    <div class="product-card"><img src="{{ asset('img/bonebroth.jpg') }}" alt="Bone Broth">
+                    <div class="product-card"><img src="{{ asset('img/cikibone.jpg') }}" alt="Bone Broth">
                         <h3>Bone Broth</h3>
-                        <p>Kaldu tulang sehat untuk nutrisi optimal.</p>
+                        <p>Kaldu tulang sehat untuk nutrisi optimal. Kalori 47kkal/20gr, tanpa pengawet.</p>
                     </div>
                 @endfor
             </div>
         </div>
     </section>
 
-    <section class="team" id="team">
-        <h2 class="section-title">Kelompok 4 – Anggota</h2>
-        <div class="team-grid">
-            <div class="team-member"><img src="{{ asset('img/naswa.jpg') }}" alt="Fahmi">
-                <p>Fahmi Mardiansyah<br>2241760064</p>
+    <section class="team" id="team"
+        style="background: linear-gradient(135deg, #ff725e, #fffbf0); padding: 4rem 2rem;">
+        <h2 class="section-title" style="color: #ff5c5c; margin-bottom: 3rem;">Kelompok 4 – Anggota</h2>
+        <div class="team-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;">
+            <!-- Card Anggota -->
+            <div class="team-member"
+                style="
+            background: linear-gradient(145deg, #fff, #ffecec);
+            padding: 2rem;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            width: 200px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        "
+                onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.2)'"
+                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)'">
+                <div style="margin-bottom: 1rem;">
+                    <img src="{{ asset('img/ian.png') }}" alt="Fahmi"
+                        style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 5px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                </div>
+                <p style="font-weight: 600;">Fahmi Mardiansyah<br><span style="font-weight: 400;">2241760064</span></p>
             </div>
-            <div class="team-member"><img src="{{ asset('img/naswa.jpg') }}" alt="Maritza">
-                <p>Maritza Ulfa Huriyah<br>2241760119</p>
+
+            <!-- Copy paste card lainnya -->
+            <div class="team-member" style="...">
+                <div style="margin-bottom: 1rem;">
+                    <img src="{{ asset('img/risa.jpg') }}" alt="Maritza"
+                        style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 5px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                </div>
+                <p style="font-weight: 600;">Maritza Ulfa Huriyah<br><span style="font-weight: 400;">2241760119</span>
+                </p>
             </div>
-            <div class="team-member"><img src="{{ asset('img/naswa.jpg') }}" alt="Nasywa">
-                <p>Nasywa Salma<br>2241760140</p>
+
+            <div class="team-member" style="...">
+                <div style="margin-bottom: 1rem;">
+                    <img src="{{ asset('img/salma.jpg') }}" alt="Nasywa"
+                        style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 5px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                </div>
+                <p style="font-weight: 600;">Nasywa Salma<br><span style="font-weight: 400;">2241760140</span></p>
             </div>
-            <div class="team-member"><img src="{{ asset('img/naswa.jpg') }}" alt="Nasywa">
-                <p>Nasywa Syafinka<br>2241760002</p>
+
+            <div class="team-member" style="...">
+                <div style="margin-bottom: 1rem;">
+                    <img src="{{ asset('img/naswa.jpeg') }}" alt="Nasywa"
+                        style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 5px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                </div>
+                <p style="font-weight: 600;">Nasywa Syafinka<br><span style="font-weight: 400;">2241760002</span></p>
             </div>
-            <div class="team-member"><img src="{{ asset('img/naswa.jpg') }}" alt="Syffa">
-                <p>Syffa Firdausyah<br>2241760005</p>
+
+            <div class="team-member" style="...">
+                <div style="margin-bottom: 1rem;">
+                    <img src="{{ asset('img/syffa.jpg') }}" alt="Syffa"
+                        style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 5px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                </div>
+                <p style="font-weight: 600;">Syffa Firdausyah<br><span style="font-weight: 400;">2241760005</span></p>
             </div>
         </div>
     </section>
+
 
     <footer>
         &copy; {{ date('Y') }} Nyam Baby CRM
