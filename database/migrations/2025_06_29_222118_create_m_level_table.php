@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('m_barang', function (Blueprint $table) {
-            $table->timestamp('created_at')->nullable()->after('stok');
-            $table->timestamp('updated_at')->nullable()->after('created_at');
+        Schema::create('m_level', function (Blueprint $table) {
+            $table->id('level_id');
+            $table->string('level_kode', 50)->unique();
+            $table->string('level_nama')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -22,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('m_barang', function (Blueprint $table) {
-            $table->dropColumn(['created_at', 'updated_at']);
-        });
+        Schema::dropIfExists('m_level');
     }
 };

@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('m_user', function (Blueprint $table) {
-            $table->rememberToken()->after('password')->nullable();
+        Schema::create('m_level_agen', function (Blueprint $table) {
+            $table->id('level_agen_id');
+            $table->string('level_agen_kode', 50)->unique();
+            $table->string('level_agen_nama')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('m_user', function (Blueprint $table) {
-            $table->dropColumn('remember_token');
-        });
+        Schema::dropIfExists('m_level_agen');
     }
 };
