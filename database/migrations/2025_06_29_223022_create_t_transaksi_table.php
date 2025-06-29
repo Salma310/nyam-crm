@@ -11,18 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Schema::create('t_transaksi', function (Blueprint $table) {
-        //     $table->id('transaksi_id');
-        //     $table->string('kode_transaksi',50)->unique()->nullable();
-        //     $table->unsignedBigInteger('agen_id')->nullable();
-        //     $table->double('harga_total')->nullable();
-        //     $table->date('tgl_transaksi')->nullable();
-        //     $table->timestamps();
-
-        //     $table->foreign('agen_id')->references('agen_id')->on('m_agen');
-        // });
-
-         Schema::create('t_transaksi', function (Blueprint $table) {
+        Schema::create('t_transaksi', function (Blueprint $table) {
             $table->id('transaksi_id');
             $table->string('kode_transaksi',50)->unique()->nullable();
             $table->unsignedBigInteger('agen_id')->nullable();

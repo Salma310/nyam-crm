@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('m_harga_agen', function (Blueprint $table) {
             $table->id('harga_agen_id');
-            $table->unsignedBigInteger('agen_id')->nullable();
+            $table->unsignedBigInteger('level_agen_id')->nullable();
+            $table->string('kota')->nullable();
             $table->unsignedBigInteger('barang_id')->nullable();
             $table->double('harga', 12, 2)->nullable();
             $table->double('diskon', 10, 2)->default(0)->nullable();
             $table->double('diskon_persen', 5, 2)->default(0)->nullable();
             $table->timestamps();
 
-            $table->foreign('agen_id')->references('agen_id')->on('m_agen');
+            $table->foreign('level_agen_id')->references('level_agen_id')->on('m_level_agen');
             $table->foreign('barang_id')->references('barang_id')->on('m_barang');
         });
     }
